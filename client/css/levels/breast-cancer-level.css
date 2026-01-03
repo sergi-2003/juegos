@@ -1,0 +1,1307 @@
+:root {
+    --breast-cancer-primary: #078930;
+    --breast-cancer-secondary: #ffffff;
+    --breast-cancer-accent: #078930;
+    --health-green: #078930;
+    --warning-orange: #078930;
+    --danger-red: #c62828;
+    --detection-blue: #078930;
+
+    --bg: #f8f6f3;
+    --text: #0b6f2b;
+    --muted: rgba(11, 111, 43, 0.7);
+    --card-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+    --card-radius: 18px;
+    --max-narrow: 820px;
+    --max-wide: 1100px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body.game-level {
+    background: var(--bg);
+    min-height: 100vh;
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    color: var(--text);
+}
+
+/* HUD */
+.game-hud {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 14px 18px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 12px;
+    z-index: 1000;
+    border-bottom: 3px solid var(--breast-cancer-primary);
+    box-shadow: 0 4px 20px rgba(7, 137, 48, 0.1);
+}
+
+.hud-left .level-info h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--breast-cancer-primary);
+    line-height: 1.2;
+}
+
+.hud-left .level-info p {
+    margin: 4px 0 0 0;
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+.health-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.hearts {
+    display: flex;
+    gap: 6px;
+}
+
+.hearts .fa-heart {
+    color: var(--danger-red);
+    font-size: 1.25rem;
+    animation: heartbeat 2s infinite;
+}
+
+.hearts .fa-heart.lost {
+    color: #ccc;
+    animation: none;
+}
+
+@keyframes heartbeat {
+
+    0%,
+    50%,
+    100% {
+        transform: scale(1)
+    }
+
+    25%,
+    75% {
+        transform: scale(1.1)
+    }
+}
+
+.hud-right {
+    justify-self: end;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.score-display {
+    text-align: right;
+}
+
+.score-display span {
+    font-size: 0.78rem;
+    color: var(--muted);
+    display: block;
+}
+
+.score {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--breast-cancer-primary);
+    line-height: 1;
+}
+
+.timer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    color: var(--breast-cancer-accent);
+    white-space: nowrap;
+}
+
+/* App container */
+.game-container {
+    margin-top: 78px;
+    min-height: calc(100vh - 78px);
+    position: relative;
+}
+
+/* Screens */
+.game-screen {
+    display: none;
+    min-height: 100%;
+    padding: 18px 16px;
+    animation: fadeInSlide 0.6s ease-out;
+}
+
+.game-screen.active {
+    display: block;
+}
+
+@keyframes fadeInSlide {
+    from {
+        opacity: 0;
+        transform: translateY(20px)
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0)
+    }
+}
+
+/* Centering helpers */
+.wrap-narrow {
+    max-width: var(--max-narrow);
+    margin: 0 auto;
+    width: 100%;
+}
+
+.wrap-wide {
+    max-width: var(--max-wide);
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Intro */
+.intro-content {
+    max-width: var(--max-narrow);
+    margin: 0 auto;
+    width: 100%;
+}
+
+.mission-briefing {
+    background: #fff;
+    border-radius: var(--card-radius);
+    padding: 26px;
+    box-shadow: var(--card-shadow);
+    border: 2px solid rgba(7, 137, 48, 0.12);
+}
+
+.briefing-header {
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.doctor-avatar {
+    width: 76px;
+    height: 76px;
+    background: var(--breast-cancer-primary);
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 10px;
+    font-size: 2rem;
+    color: #fff;
+    box-shadow: 0 10px 26px rgba(7, 137, 48, 0.25);
+}
+
+.briefing-header h2 {
+    margin: 0;
+    color: var(--breast-cancer-primary);
+    font-size: 1.5rem;
+    font-weight: 800;
+}
+
+.doctor-title {
+    margin: 6px 0 0 0;
+    color: var(--muted);
+    font-style: italic;
+}
+
+.briefing-text {
+    margin-top: 18px;
+}
+
+.briefing-text h3 {
+    margin: 0 0 10px;
+    font-size: 1.2rem;
+    color: var(--breast-cancer-primary);
+}
+
+.mission-objectives {
+    margin: 14px 0;
+    padding: 14px 14px;
+    border-radius: 14px;
+    border: 1px solid rgba(7, 137, 48, 0.18);
+    background: rgba(7, 137, 48, 0.04);
+}
+
+.mission-objectives h4 {
+    margin: 0 0 10px;
+    color: var(--breast-cancer-primary);
+}
+
+.mission-objectives ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.mission-objectives li {
+    padding: 6px 0;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.difficulty-info {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    margin-top: 14px;
+}
+
+.difficulty-badge {
+    background: var(--health-green);
+    color: #fff;
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: 0.85rem;
+}
+
+.time-estimate {
+    color: var(--muted);
+    font-weight: 700;
+}
+
+.briefing-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 18px;
+}
+
+.btn-start-mission,
+.btn-back {
+    border-radius: 999px;
+    padding: 12px 18px;
+    font-weight: 800;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-start-mission {
+    background: var(--breast-cancer-primary);
+    color: #fff;
+    box-shadow: 0 10px 22px rgba(7, 137, 48, 0.22);
+}
+
+.btn-start-mission:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 26px rgba(7, 137, 48, 0.28);
+}
+
+.btn-back {
+    background: #fff;
+    color: var(--breast-cancer-primary);
+    border-color: rgba(7, 137, 48, 0.25);
+}
+
+.btn-back:hover {
+    transform: translateY(-1px);
+}
+
+/* Tutorial */
+.tutorial-content {
+    max-width: var(--max-wide);
+    margin: 0 auto;
+    width: 100%;
+}
+
+.tutorial-header {
+    max-width: var(--max-narrow);
+    margin: 0 auto 14px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(7, 137, 48, 0.12);
+    box-shadow: var(--card-shadow);
+    border-radius: var(--card-radius);
+    padding: 18px;
+    text-align: center;
+}
+
+.tutorial-header h2 {
+    margin: 0 0 10px;
+    font-size: 1.5rem;
+    color: var(--breast-cancer-primary);
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.progress-bar {
+    width: min(360px, 92%);
+    height: 10px;
+    background: rgba(7, 137, 48, 0.10);
+    border: 1px solid rgba(7, 137, 48, 0.25);
+    border-radius: 999px;
+    margin: 0 auto 8px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 20%;
+    background: var(--breast-cancer-primary);
+    border-radius: 999px;
+    transition: width 0.25s ease;
+}
+
+.step-counter {
+    color: var(--muted);
+    font-weight: 800;
+}
+
+.tutorial-main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    align-items: start;
+}
+
+.anatomy-diagram,
+.instruction-card {
+    background: #fff;
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+    border: 1px solid rgba(7, 137, 48, 0.12);
+}
+
+.anatomy-diagram {
+    padding: 12px;
+    min-height: 420px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.instruction-card {
+    padding: 18px;
+    border-left: 5px solid var(--breast-cancer-primary);
+}
+
+.instruction-card h3 {
+    margin: 0 0 10px;
+    color: var(--breast-cancer-primary);
+}
+
+.instruction-card p {
+    margin: 0 0 10px;
+    color: var(--text);
+    line-height: 1.55;
+}
+
+.instruction-card ul {
+    margin: 10px 0 0;
+    padding-left: 18px;
+}
+
+.instruction-card li {
+    margin: 8px 0;
+}
+
+.instruction-card .highlight {
+    background: rgba(7, 137, 48, 0.08);
+    padding: 1px 8px;
+    border-radius: 999px;
+    font-weight: 800;
+    color: var(--breast-cancer-primary);
+}
+
+.tutorial-controls {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.btn-prev,
+.btn-next {
+    flex: 1;
+    border-radius: 999px;
+    padding: 12px 14px;
+    border: 2px solid transparent;
+    font-weight: 900;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.btn-prev {
+    background: #fff;
+    border-color: rgba(7, 137, 48, 0.22);
+    color: var(--breast-cancer-primary);
+}
+
+.btn-prev:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.btn-prev:not(:disabled):hover {
+    transform: translateY(-1px);
+}
+
+.btn-next {
+    background: var(--breast-cancer-primary);
+    color: #fff;
+}
+
+.btn-next:hover {
+    transform: translateY(-1px);
+}
+
+/* Tutorial images */
+.diagram-figure {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.diagram-image {
+    width: min(520px, 100%);
+    height: auto;
+    display: block;
+    border-radius: 14px;
+    user-select: none;
+}
+
+/* Detection */
+.detection-content {
+    max-width: var(--max-wide);
+    margin: 0 auto;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 14px;
+}
+
+.game-header {
+    grid-column: 1 / -1;
+    text-align: center;
+}
+
+.game-header h2 {
+    margin: 0 0 6px;
+    color: var(--breast-cancer-primary);
+    font-weight: 900;
+}
+
+.game-header p {
+    margin: 0;
+    color: var(--muted);
+    font-weight: 700;
+}
+
+.detection-area {
+    background: #fff;
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+    border: 1px solid rgba(7, 137, 48, 0.12);
+    padding: 14px;
+    position: relative;
+}
+
+.examination-model {
+    width: 100%;
+    height: 520px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 16px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: #fff;
+    cursor: grab;
+}
+
+.examination-model .exam-base {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    pointer-events: none;
+    user-select: none;
+    z-index: 1;
+    transform: scale(1);
+}
+
+.examination-model .detection-zones {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+}
+
+.detection-zone {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    border-radius: 999px;
+    cursor: pointer;
+    z-index: 4;
+    background: rgba(7, 137, 48, 0.14);
+    border: 2px solid rgba(7, 137, 48, 0.35);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.10);
+    transition: transform 120ms ease, opacity 120ms ease, background 120ms ease;
+}
+
+.detection-zone:hover {
+    transform: translate(-50%, -50%) scale(1.08);
+    background: rgba(7, 137, 48, 0.24);
+}
+
+/* MARCADO para no repetir */
+.detection-zone.locked {
+    cursor: not-allowed;
+    pointer-events: none;
+    /* evita repetir */
+    opacity: 0.75;
+}
+
+.detection-zone.found {
+    background: rgba(7, 137, 48, 0.25);
+    border-color: rgba(7, 137, 48, 0.65);
+    animation: foundPulse 1s ease-out;
+}
+
+.detection-zone.anomaly {
+    background: rgba(198, 40, 40, 0.22);
+    border-color: rgba(198, 40, 40, 0.65);
+    animation: anomalyPulse 1s ease-out;
+}
+
+@keyframes foundPulse {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.18);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+@keyframes anomalyPulse {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.12);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+/* Hotspots invisibles */
+.examination-model.hotspots-invisible .detection-zone {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+}
+
+.examination-model.hotspots-invisible .detection-zone:hover {
+    background: rgba(7, 137, 48, 0.18);
+    border: 2px solid rgba(7, 137, 48, 0.45);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.10);
+}
+
+/* Si están locked, que igual se vean marcadas aunque sea invisible */
+.examination-model.hotspots-invisible .detection-zone.locked.found {
+    background: rgba(7, 137, 48, 0.18);
+    border: 2px solid rgba(7, 137, 48, 0.45);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.10);
+}
+
+.examination-model.hotspots-invisible .detection-zone.locked.anomaly {
+    background: rgba(198, 40, 40, 0.16);
+    border: 2px solid rgba(198, 40, 40, 0.55);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.10);
+}
+
+.scanning-hand {
+    position: absolute;
+    font-size: 2rem;
+    color: rgba(7, 137, 48, 0.8);
+    opacity: 0.75;
+    pointer-events: none;
+    z-index: 10;
+    transition: all 0.15s ease;
+}
+
+.detection-feedback {
+    margin-top: 10px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(7, 137, 48, 0.12);
+    border-radius: 14px;
+    padding: 12px;
+    text-align: center;
+    font-weight: 800;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.25s ease;
+}
+
+.detection-feedback.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.detection-feedback.positive {
+    border-left: 5px solid var(--health-green);
+    color: var(--health-green);
+}
+
+.detection-feedback.negative {
+    border-left: 5px solid var(--danger-red);
+    color: var(--danger-red);
+}
+
+.detection-feedback.neutral {
+    border-left: 5px solid var(--detection-blue);
+    color: var(--detection-blue);
+}
+
+.detection-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.findings-panel,
+.hints-panel {
+    background: #fff;
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+    border: 1px solid rgba(7, 137, 48, 0.12);
+    padding: 14px;
+}
+
+.findings-panel h3,
+.hints-panel h3 {
+    margin: 0 0 10px;
+    color: var(--breast-cancer-primary);
+    font-weight: 900;
+}
+
+.findings-list {
+    min-height: 160px;
+    max-height: 280px;
+    overflow: auto;
+    padding-right: 6px;
+}
+
+.finding-item {
+    background: rgba(7, 137, 48, 0.05);
+    border-radius: 12px;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-left: 4px solid var(--health-green);
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.finding-item.anomaly {
+    border-left-color: var(--danger-red);
+    background: rgba(198, 40, 40, 0.06);
+}
+
+.finding-item.progress {
+    border-left-color: var(--detection-blue);
+    background: rgba(7, 137, 48, 0.06);
+    color: var(--breast-cancer-primary);
+}
+
+.hint-display {
+    background: rgba(7, 137, 48, 0.05);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-left: 4px solid var(--detection-blue);
+    min-height: 72px;
+    color: var(--text);
+    font-weight: 700;
+}
+
+.btn-hint {
+    width: 100%;
+    background: var(--breast-cancer-primary);
+    color: #fff;
+    border: none;
+    padding: 12px;
+    border-radius: 14px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-hint:hover {
+    transform: translateY(-1px);
+}
+
+.btn-hint:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Quiz */
+.quiz-content {
+    max-width: 720px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.quiz-header {
+    background: #fff;
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+    border: 1px solid rgba(7, 137, 48, 0.12);
+    padding: 16px;
+    text-align: center;
+    margin-bottom: 14px;
+}
+
+.quiz-header h2 {
+    margin: 0 0 10px;
+    color: var(--breast-cancer-primary);
+    font-weight: 900;
+}
+
+.quiz-progress {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    color: var(--muted);
+    font-weight: 800;
+}
+
+.quiz-progress-bar {
+    width: min(360px, 92%);
+    height: 10px;
+    background: rgba(7, 137, 48, 0.10);
+    border-radius: 999px;
+    overflow: hidden;
+    border: 1px solid rgba(7, 137, 48, 0.20);
+}
+
+.quiz-progress-fill {
+    height: 100%;
+    width: 20%;
+    background: var(--breast-cancer-primary);
+    border-radius: 999px;
+    transition: width 0.25s ease;
+}
+
+.question-card {
+    background: #fff;
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+    border: 1px solid rgba(7, 137, 48, 0.12);
+    padding: 16px;
+    margin-bottom: 14px;
+}
+
+.question-card h3 {
+    margin: 0;
+    color: var(--breast-cancer-primary);
+    font-weight: 900;
+    line-height: 1.35;
+}
+
+.answer-options {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.answer-option {
+    background: #fff;
+    border: 2px solid rgba(0, 0, 0, 0.08);
+    border-radius: 16px;
+    padding: 14px;
+    cursor: pointer;
+    transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.04);
+}
+
+.answer-option:hover {
+    transform: translateY(-1px);
+    border-color: rgba(7, 137, 48, 0.35);
+}
+
+.answer-option.selected {
+    border-color: rgba(7, 137, 48, 0.55);
+    background: rgba(7, 137, 48, 0.06);
+}
+
+.answer-option.correct {
+    border-color: rgba(7, 137, 48, 0.65);
+}
+
+.answer-option.incorrect {
+    border-color: rgba(198, 40, 40, 0.65);
+}
+
+.option-letter {
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    background: var(--breast-cancer-primary);
+    color: #fff;
+    flex-shrink: 0;
+}
+
+.quiz-feedback {
+    background: #fff;
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+    border: 1px solid rgba(7, 137, 48, 0.12);
+    padding: 14px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.2s ease;
+    margin-bottom: 14px;
+    font-weight: 800;
+}
+
+.quiz-feedback.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.quiz-feedback.correct {
+    border-left: 5px solid var(--health-green);
+    color: var(--health-green);
+}
+
+.quiz-feedback.incorrect {
+    border-left: 5px solid var(--danger-red);
+    color: var(--danger-red);
+}
+
+.quiz-controls {
+    text-align: center;
+}
+
+.btn-submit-answer {
+    background: var(--breast-cancer-primary);
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    padding: 12px 18px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-submit-answer:hover:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+.btn-submit-answer:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Results */
+.results-content {
+    max-width: var(--max-narrow);
+    margin: 0 auto;
+    width: 100%;
+    text-align: center;
+}
+
+.results-header {
+    background: #fff;
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+    border: 1px solid rgba(7, 137, 48, 0.12);
+    padding: 18px;
+    margin-bottom: 14px;
+}
+
+.completion-badge {
+    width: 92px;
+    height: 92px;
+    background: var(--breast-cancer-primary);
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 10px;
+    font-size: 2.6rem;
+    color: #fff;
+    box-shadow: 0 14px 28px rgba(7, 137, 48, 0.26);
+    animation: bounceIn 0.9s ease-out;
+}
+
+@keyframes bounceIn {
+    0% {
+        transform: scale(0)
+    }
+
+    55% {
+        transform: scale(1.12)
+    }
+
+    100% {
+        transform: scale(1)
+    }
+}
+
+.results-header h2 {
+    margin: 0 0 6px;
+    color: var(--breast-cancer-primary);
+    font-weight: 900;
+}
+
+.results-header p {
+    margin: 0;
+    color: var(--muted);
+    font-weight: 800;
+}
+
+.results-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.stat-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: var(--card-shadow);
+    border: 1px solid rgba(7, 137, 48, 0.12);
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+}
+
+.stat-icon {
+    width: 54px;
+    height: 54px;
+    background: var(--breast-cancer-primary);
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    flex-shrink: 0;
+    font-size: 1.2rem;
+}
+
+.stat-label {
+    display: block;
+    color: var(--muted);
+    font-weight: 800;
+    font-size: 0.85rem;
+}
+
+.stat-value {
+    display: block;
+    color: var(--breast-cancer-primary);
+    font-weight: 900;
+    font-size: 1.25rem;
+}
+
+.results-achievements,
+.results-knowledge {
+    background: #fff;
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+    border: 1px solid rgba(7, 137, 48, 0.12);
+    padding: 16px;
+    margin-bottom: 14px;
+}
+
+.results-achievements h3,
+.results-knowledge h3 {
+    margin: 0 0 10px;
+    color: var(--breast-cancer-primary);
+    font-weight: 900;
+}
+
+.achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 10px;
+}
+
+.achievement-badge {
+    background: rgba(7, 137, 48, 0.04);
+    border: 1px solid rgba(7, 137, 48, 0.12);
+    border-radius: 14px;
+    padding: 12px;
+    text-align: left;
+}
+
+.achievement-icon {
+    font-size: 1.6rem;
+    color: var(--health-green);
+    margin-bottom: 6px;
+}
+
+.achievement-title {
+    font-weight: 900;
+    color: var(--breast-cancer-primary);
+}
+
+.achievement-desc {
+    font-weight: 700;
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.knowledge-checklist {
+    display: grid;
+    gap: 10px;
+    text-align: left;
+}
+
+.knowledge-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(7, 137, 48, 0.18);
+    background: rgba(7, 137, 48, 0.04);
+    font-weight: 800;
+}
+
+.knowledge-item.completed {
+    background: rgba(7, 137, 48, 0.10);
+    border-left: 5px solid var(--health-green);
+}
+
+.results-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-continue,
+.btn-replay,
+.btn-menu {
+    border-radius: 999px;
+    padding: 12px 16px;
+    font-weight: 900;
+    border: 2px solid transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.15s ease;
+}
+
+.btn-continue {
+    background: var(--health-green);
+    color: #fff;
+}
+
+.btn-replay {
+    background: var(--warning-orange);
+    color: #fff;
+}
+
+.btn-menu {
+    background: #fff;
+    color: var(--breast-cancer-primary);
+    border-color: rgba(7, 137, 48, 0.25);
+}
+
+.btn-continue:hover,
+.btn-replay:hover,
+.btn-menu:hover {
+    transform: translateY(-1px);
+}
+
+/* Overlay pause */
+.game-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.78);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.game-overlay.hidden {
+    display: none;
+}
+
+.overlay-content {
+    width: min(420px, 92%);
+    background: #fff;
+    border-radius: var(--card-radius);
+    padding: 18px;
+    box-shadow: 0 22px 70px rgba(0, 0, 0, 0.35);
+    text-align: center;
+}
+
+.overlay-content h2 {
+    margin: 0 0 12px;
+    color: var(--breast-cancer-primary);
+    font-weight: 900;
+}
+
+.pause-actions {
+    display: grid;
+    gap: 10px;
+}
+
+.btn-resume,
+.btn-restart,
+.btn-exit {
+    border-radius: 16px;
+    padding: 12px;
+    font-weight: 900;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-resume {
+    background: var(--health-green);
+    color: #fff;
+}
+
+.btn-restart {
+    background: var(--warning-orange);
+    color: #fff;
+}
+
+.btn-exit {
+    background: var(--danger-red);
+    color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 920px) {
+    .detection-content {
+        grid-template-columns: 1fr;
+    }
+
+    .detection-sidebar {
+        order: 2;
+    }
+}
+
+@media (max-width: 768px) {
+    .game-hud {
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+            "left right"
+            "center center";
+    }
+
+    .hud-left {
+        grid-area: left;
+    }
+
+    .hud-right {
+        grid-area: right;
+        justify-self: end;
+    }
+
+    .hud-center {
+        grid-area: center;
+        justify-self: center;
+    }
+
+    .tutorial-main {
+        grid-template-columns: 1fr;
+        justify-items: center;
+    }
+
+    .anatomy-diagram,
+    .instruction-card {
+        width: 100%;
+        max-width: 560px;
+    }
+
+    .tutorial-controls {
+        max-width: 560px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .results-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .examination-model {
+        height: 380px;
+        cursor: grab;
+    }
+}
+
+@media (max-width: 420px) {
+    .examination-model {
+        height: 340px;
+    }
+
+    .btn-prev,
+    .btn-next {
+        padding: 12px 10px;
+    }
+}

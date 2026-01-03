@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nivel 3: Laboratorio de Prevención Cervical - VitaGuard Heroes</title>
+    <link rel="stylesheet" href="css/levels/cervical-cancer-level.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Pantalla de Carga -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="dna-helix">
+                <div class="strand strand-1"></div>
+                <div class="strand strand-2"></div>
+            </div>
+            <h2>🔬 Cargando Laboratorio de Prevención...</h2>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+            <p class="loading-text">Preparando equipos médicos...</p>
+        </div>
+    </div>
+
+    <!-- Header del Nivel -->
+    <header class="level-header">
+  <!-- Left -->
+  <div class="header-left">
+  <button id="pause-btn" class="header-btn" type="button" aria-label="Pausar juego">
+    <img src="./img/logo-prueba-alcaldia-redsalud.png" alt="Pausar" class="btn-icon">
+  </button>
+</div>
+
+
+    <div class="level-info">
+      <h1 class="level-title">🔬 Nivel 3: Laboratorio Cervical</h1>
+      <p class="mission-text">Prevención del Cáncer Cervicouterino</p>
+    </div>
+  </div>
+
+  <!-- Right -->
+  <div class="header-right">
+    <!-- Score -->
+    <div class="stat-card" aria-label="Puntos">
+      <i class="fas fa-trophy" aria-hidden="true"></i>
+      <div class="stat-content">
+        <span class="stat-label">Puntos</span>
+        <span id="current-score" class="stat-value">0</span>
+      </div>
+    </div>
+
+    <!-- Time -->
+    <div class="stat-card" aria-label="Tiempo">
+      <i class="fas fa-clock" aria-hidden="true"></i>
+      <div class="stat-content">
+        <span class="stat-label">Tiempo</span>
+        <span id="timer" class="stat-value">5:00</span>
+      </div>
+    </div>
+
+    <!-- Lives -->
+    <div class="stat-card" aria-label="Vidas">
+      <i class="fas fa-heart" aria-hidden="true"></i>
+      <div class="stat-content">
+        <span class="stat-label">Vidas</span>
+
+        <div id="lives-container" class="lives" role="group" aria-label="Contador de vidas">
+          <span class="heart" id="heart1" aria-label="Vida 1">❤️</span>
+          <span class="heart" id="heart2" aria-label="Vida 2">❤️</span>
+          <span class="heart" id="heart3" aria-label="Vida 3">❤️</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+
+    <!-- Contenedor Principal del Juego -->
+    <main id="game-container" class="game-container">
+        
+        <!-- FASE 1: Introducción -->
+        <section id="intro-phase" class="game-phase active">
+            <div class="intro-content">
+                <div class="intro-hero">
+                    <div class="cervical-illustration">
+                        <div class="uterus-icon">🔬</div>
+                        <div class="particles"></div>
+                    </div>
+                    <h2 class="intro-title">Bienvenido al Laboratorio de Prevención Cervical</h2>
+                    <p class="intro-description">
+                        El cáncer cervicouterino es altamente prevenible. En este laboratorio aprenderás sobre:
+                    </p>
+                    <div class="intro-features">
+                        <div class="feature-card">
+                            <i class="fas fa-syringe"></i>
+                            <h3>Vacuna VPH</h3>
+                            <p>Protección temprana</p>
+                        </div>
+                    
+                        <div class="feature-card">
+                            <i class="fas fa-shield-alt"></i>
+                            <h3>Prevención</h3>
+                            <p>Factores de riesgo</p>
+                        </div>
+                        <div class="feature-card">
+                            <i class="fas fa-calendar-check"></i>
+                            <h3>Chequeos</h3>
+                            <p>Seguimiento regular</p>
+                        </div>
+                    </div>
+                </div>
+                <button id="start-game-btn" class="primary-btn large-btn pulse-btn">
+                    <i class="fas fa-play"></i> Iniciar Misión
+                </button>
+            </div>
+        </section>
+
+        <!-- FASE 2: Línea de Tiempo VPH -->
+        <section id="timeline-phase" class="game-phase">
+            <div class="phase-header">
+                <h2>📅 Línea de Tiempo de Vacunación VPH</h2>
+                <p>Identifica las edades correctas para la vacuna contra el VPH</p>
+                <div class="progress-indicator">
+                    <span id="timeline-progress">0/5</span>
+                </div>
+            </div>
+            <div class="timeline-container">
+                <div class="timeline-track">
+                    <div id="age-markers" class="age-markers"></div>
+                </div>
+                <div id="vaccination-cards" class="vaccination-cards"></div>
+                <div class="timeline-info">
+                    <div class="info-box">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Arrastra las tarjetas a la edad correcta en la línea de tiempo</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+       
+        <!-- FASE 4: Factores de Riesgo -->
+        <section id="risk-factors-phase" class="game-phase">
+            <div class="phase-header">
+                <h2>⚠️ Identificación de Factores de Riesgo</h2>
+                <p>Elimina los factores de riesgo y mantén los hábitos saludables</p>
+                <div class="progress-indicator">
+                    <span id="risk-progress">0/12</span>
+                </div>
+            </div>
+            <div class="risk-game-area">
+                <div class="healthy-zone">
+                    <h3><i class="fas fa-heart"></i> Hábitos Saludables</h3>
+                    <div id="healthy-items" class="drop-zone"></div>
+                </div>
+                <div class="items-pool">
+                    <h3>Identifica y Clasifica</h3>
+                    <div id="risk-items" class="risk-items-grid"></div>
+                </div>
+                <div class="danger-zone">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Factores de Riesgo</h3>
+                    <div id="danger-items" class="drop-zone"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FASE 5: Mitos vs Realidades -->
+        <section id="myths-phase" class="game-phase">
+            <div class="phase-header">
+                <h2>💡 Mitos vs Realidades</h2>
+                <p>Separa los mitos de las realidades sobre el cáncer cervical</p>
+                <div class="progress-indicator">
+                    <span id="myths-progress">0/10</span>
+                </div>
+            </div>
+            <div class="myths-container">
+                <div class="myths-column reality-column">
+                    <h3><i class="fas fa-check-circle"></i> Realidad</h3>
+                    <div id="reality-zone" class="myth-drop-zone"></div>
+                </div>
+                <div class="statements-pool">
+                    <div id="myth-statements" class="myth-cards"></div>
+                </div>
+                <div class="myths-column myth-column">
+                    <h3><i class="fas fa-times-circle"></i> Mito</h3>
+                    <div id="myth-zone" class="myth-drop-zone"></div>
+                </div>
+            </div>
+        </section>
+
+       
+        <!-- Pantalla de Victoria -->
+        <section id="victory-screen" class="game-phase victory-screen">
+            <div class="victory-content">
+                <div class="trophy-animation">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <h2 class="victory-title">¡Laboratorio Completado!</h2>
+                <div class="final-stats">
+                    <div class="stat-box">
+                        <i class="fas fa-star"></i>
+                        <span class="stat-number" id="final-score">0</span>
+                        <span class="stat-label">Puntos Totales</span>
+                    </div>
+                    <div class="stat-box">
+                        <i class="fas fa-clock"></i>
+                        <span class="stat-number" id="final-time">0:00</span>
+                        <span class="stat-label">Tiempo</span>
+                    </div>
+                    <div class="stat-box">
+                        <i class="fas fa-bullseye"></i>
+                        <span class="stat-number" id="final-accuracy">0%</span>
+                        <span class="stat-label">Precisión</span>
+                    </div>
+                </div>
+                <div class="achievements" id="achievements-list"></div>
+                <div class="knowledge-summary">
+                    <h3>📚 Lo que aprendiste:</h3>
+                    <ul id="learning-points"></ul>
+                </div>
+                <div class="victory-actions">
+                    <button id="next-level-btn" class="primary-btn">
+                        <i class="fas fa-forward"></i> Siguiente Nivel
+                    </button>
+                    <button id="replay-btn" class="secondary-btn">
+                        <i class="fas fa-redo"></i> Repetir Nivel
+                    </button>
+                    <button id="menu-btn" class="secondary-btn">
+                        <i class="fas fa-home"></i> Menú Principal
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal de Pausa -->
+    <div id="pause-modal" class="modal">
+        <div class="modal-content">
+            <h2><i class="fas fa-pause-circle"></i> Juego Pausado</h2>
+            <p>El tiempo se ha detenido</p>
+            <div class="modal-actions">
+                <button id="resume-btn" class="primary-btn">
+                    <i class="fas fa-play"></i> Continuar
+                </button>
+                <button id="restart-btn" class="secondary-btn">
+                    <i class="fas fa-redo"></i> Reiniciar
+                </button>
+                <button id="exit-btn" class="secondary-btn">
+                    <i class="fas fa-sign-out-alt"></i> Salir
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/auth.js"></script>
+    <script src="js/levels/cervical-cancer-data.js"></script>
+    <script src="js/levels/cervical-cancer-game.js"></script>
+</body>
+</html>

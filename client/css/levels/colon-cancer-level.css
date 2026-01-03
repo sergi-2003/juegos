@@ -1,0 +1,1588 @@
+/* ============================================
+   NIVEL 4: CÁNCER DE COLON - ESTILOS (RESPONSIVE COMPLETO)
+   ============================================ */
+
+/* ---------- THEME / VARIABLES (mejor jerarquía) ---------- */
+:root {
+  --primary-color: #078930;
+  --secondary-color: #046a25;
+  --accent-color: #18b34a;
+
+  --bg-dark: #f6fbf7;
+  --bg-medium: #ffffff;
+  --bg-light: #ffffff;
+
+  --text-primary: #0b2b12;
+  --text-secondary: #2f6b3d;
+
+  --success-color: #078930;
+  --warning-color: #f0b429;
+  --error-color: #d64545;
+  --danger-color: #d64545;
+
+  --border: rgba(7, 137, 48, 0.18);
+  --shadow: 0 14px 40px rgba(7, 137, 48, 0.16);
+  --radius-xl: 24px;
+  --radius-lg: 18px;
+  --radius-md: 12px;
+}
+
+/* ---------- RESET ---------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+img,
+canvas,
+video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ---------- BODY ---------- */
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: radial-gradient(1200px 600px at 20% 0%, rgba(7, 137, 48, 0.10), transparent 60%),
+              radial-gradient(900px 500px at 80% 10%, rgba(24, 179, 74, 0.10), transparent 55%),
+              var(--bg-dark);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+
+.level-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(229, 229, 229, 0.70);
+  backdrop-filter: blur(10px);
+  gap: 12px;
+  padding: 12px 16px;
+
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  border-bottom: 1px solid var(--border);
+}
+
+.header-left,
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0; /* evita overflow */
+}
+
+.header-left {
+  flex: 1 1 320px;
+}
+
+.header-right {
+  flex: 1 1 420px;
+  justify-content: flex-end;
+  flex-wrap: wrap; /* clave para responsive */
+}
+
+.header-btn {
+  width: 30%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: white;
+  padding: 0.75rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 1.15rem;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+/* ✅ Botón Volver (Header) */
+.back-btn-header{
+  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(7, 137, 48, 0.30);
+  color: #078930;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  box-shadow: 0 8px 22px rgba(7, 137, 48, 0.14);
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.back-btn-header:hover{
+  background: #078930;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(7, 137, 48, 0.22);
+}
+
+/* ✅ En móvil: que no dañe tu header responsive */
+@media (max-width: 768px){
+  .back-btn-header{
+    align-self: flex-start;
+  }
+}
+
+.header-btn:hover {
+  transform: translateY(-1px) scale(1.05);
+  filter: brightness(1.02);
+}
+
+.level-info h1 {
+  font-size: clamp(1.05rem, 2.4vw, 1.5rem);
+  color: var(--primary-color);
+  line-height: 1.15;
+}
+
+.mission-text {
+  font-size: clamp(0.82rem, 2vw, 0.95rem);
+  color: var(--text-secondary);
+  line-height: 1.25;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+
+  background: rgba(255, 255, 255, 0.92);
+  padding: 0.7rem 1rem;
+  border-radius: 12px;
+
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 30px rgba(7, 137, 48, 0.10);
+
+  flex: 1 1 170px;
+  min-width: 170px;
+  max-width: 260px;
+
+  font-size: 1.4rem;
+  color: var(--primary-color);
+}
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.stat-value {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.lives {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.heart {
+  color: var(--error-color);
+  font-size: 1.35rem;
+  animation: heartbeat 1.5s ease-in-out infinite;
+}
+
+.heart.lost {
+  color: var(--text-secondary);
+  opacity: 0.35;
+  animation: none;
+}
+
+@keyframes heartbeat {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Evitar que textos/iconos bloqueen drop/clicks */
+.section-label {
+  pointer-events: none;
+}
+.food-icon,
+.food-name,
+.food-score {
+  pointer-events: none;
+}
+
+/* ============================================
+   PANTALLA DE CARGA
+   ============================================ */
+
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-medium);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.loading-screen.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.loading-content {
+  text-align: center;
+}
+
+.dna-spiral {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 2rem;
+}
+
+.helix-strand {
+  position: absolute;
+  width: 8px;
+  height: 100%;
+  background: var(--primary-color);
+  border-radius: 4px;
+  animation: spiral-rotate 2s linear infinite;
+}
+
+.helix-strand:nth-child(1) {
+  left: 20px;
+  animation-delay: 0s;
+}
+.helix-strand:nth-child(2) {
+  left: 56px;
+  animation-delay: 0.33s;
+}
+.helix-strand:nth-child(3) {
+  right: 20px;
+  animation-delay: 0.66s;
+}
+
+@keyframes spiral-rotate {
+  0%,
+  100% {
+    transform: scaleY(1) translateY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: scaleY(0.5) translateY(20px);
+    opacity: 0.5;
+  }
+}
+
+.loading-bar {
+  width: min(320px, 90vw);
+  height: 8px;
+  background: rgba(7, 137, 48, 0.10);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 1rem auto;
+}
+
+.loading-progress {
+  height: 100%;
+  background: var(--primary-color);
+  animation: loading-bar 2s ease-in-out infinite;
+}
+
+@keyframes loading-bar {
+  0% {
+    width: 0%;
+  }
+  50% {
+    width: 70%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+/* ============================================
+   CONTENEDOR PRINCIPAL
+   ============================================ */
+
+.game-container {
+  width: min(1400px, 100%);
+  margin: 1.5rem auto;
+  padding: 0 1rem;
+}
+
+.game-phase {
+  display: none;
+  animation: fadeInUp 0.6s ease;
+}
+
+.game-phase.active {
+  display: block;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.phase-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.phase-header h2 {
+  font-size: clamp(1.4rem, 4vw, 2.5rem);
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.progress-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 0.5rem 1.2rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  font-size: 1.05rem;
+  font-weight: 800;
+  margin-top: 1rem;
+  box-shadow: 0 10px 30px rgba(7, 137, 48, 0.10);
+}
+
+/* ============================================
+   FASE INTRO
+   ============================================ */
+
+.intro-content {
+  width: min(1100px, 100%);
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+  text-align: center;
+}
+
+.intro-hero {
+  background: rgba(255, 255, 255, 0.90);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow);
+  padding: 2rem 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.colon-animation {
+  width: clamp(140px, 38vw, 200px);
+  height: clamp(140px, 38vw, 200px);
+  margin: 0 auto 1rem;
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+/* Si tu imagen usa class="btn-icon" en el HTML, mantenemos compatibilidad */
+.btn-icon {
+  width: clamp(160px, 60vw, 320px);
+  height: auto;
+  margin: 0 auto;
+  filter: drop-shadow(0 12px 22px rgba(7, 137, 48, 0.25));
+  animation: floaty 2.6s ease-in-out infinite;
+}
+
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(1.2deg);
+  }
+}
+
+/* Mantengo tu colon-organ por si lo usas en otra versión */
+.colon-organ {
+  width: 100%;
+  height: 100%;
+  background: var(--primary-color);
+  border-radius: 50% 50% 40% 40%;
+  animation: colon-pulse 2s ease-in-out infinite;
+  position: relative;
+}
+
+@keyframes colon-pulse {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.07) rotate(4deg);
+  }
+}
+
+/* Partículas sin hacks */
+.health-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.titulo {
+  margin-top: -200px;
+}
+
+.intro-subtitle {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  margin-top: 0.75rem;
+  line-height: 1.55;
+}
+
+.intro-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.feature-card {
+  background: rgba(255, 255, 255, 0.92);
+  padding: 1.35rem;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  box-shadow: 0 10px 30px rgba(7, 137, 48, 0.10);
+  text-align: left;
+}
+
+.feature-card:hover {
+  border-color: rgba(7, 137, 48, 0.35);
+  transform: translateY(-6px);
+  box-shadow: 0 18px 45px rgba(7, 137, 48, 0.18);
+}
+
+.feature-card h3 {
+  color: var(--secondary-color);
+  margin-bottom: 0.4rem;
+}
+
+.primary-btn {
+  width: min(420px, 100%);
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+  border: 1px solid rgba(7, 137, 48, 0.25);
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 999px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  box-shadow: 0 14px 38px rgba(7, 137, 48, 0.25);
+  animation: btn-pulse 2s ease-in-out infinite;
+}
+
+.primary-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.02);
+  box-shadow: 0 18px 48px rgba(7, 137, 48, 0.34);
+}
+
+@keyframes btn-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+}
+
+/* ============================================
+   FASE FACTORES DE RIESGO
+   ============================================ */
+
+.risk-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.risk-zones {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+}
+
+.risk-zone {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 20px;
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 10px 30px rgba(7, 137, 48, 0.10);
+}
+
+.risk-zone.success {
+  border-color: rgba(7, 137, 48, 0.35);
+}
+
+.risk-zone.danger-zone {
+  border-color: rgba(214, 69, 69, 0.35);
+}
+
+.risk-zone.items-pool {
+  border-color: rgba(24, 179, 74, 0.35);
+}
+
+.zone-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(7, 137, 48, 0.12);
+}
+
+.zone-header i {
+  font-size: 1.6rem;
+}
+
+.risk-zone.success .zone-header i {
+  color: var(--success-color);
+}
+.risk-zone.danger-zone .zone-header i {
+  color: var(--error-color);
+}
+.risk-zone.items-pool .zone-header i {
+  color: var(--accent-color);
+}
+
+.zone-content {
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.risk-item {
+  background: rgba(255, 255, 255, 0.96);
+  padding: 0.9rem;
+  border-radius: 12px;
+  border: 1px solid rgba(7, 137, 48, 0.25);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: grab;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.risk-item:hover {
+  transform: translateX(4px);
+  box-shadow: 0 10px 25px rgba(7, 137, 48, 0.16);
+}
+
+.risk-item.on-zone {
+  opacity: 0.6;
+  cursor: grabbing;
+}
+
+.risk-item.correct {
+  border-color: rgba(7, 137, 48, 0.45);
+  animation: correct-drop 0.6s ease;
+}
+
+@keyframes correct-drop {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.item-icon {
+  font-size: 1.8rem;
+}
+
+.item-name {
+  font-weight: 700;
+}
+
+/* ============================================
+   COLONOSCOPÍA VIRTUAL
+   ============================================ */
+
+.colonoscopy-container {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.25rem;
+}
+
+.colon-view-3d {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 20px;
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 30px rgba(7, 137, 48, 0.10);
+  position: relative;
+}
+
+#colon-canvas {
+  width: 100%;
+  height: clamp(320px, 55vw, 600px);
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.navigation-controls {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.nav-btn {
+  background: var(--primary-color);
+  border: none;
+  color: white;
+  padding: 0.9rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.nav-btn:hover {
+  transform: translateY(-1px) scale(1.02);
+  filter: brightness(1.02);
+}
+
+.nav-btn:nth-child(3) {
+  grid-column: 2;
+}
+
+.section-info {
+  background: rgba(255, 255, 255, 0.92);
+  padding: 1rem;
+  border-radius: 12px;
+  margin-top: 1rem;
+  border-left: 4px solid var(--primary-color);
+  border: 1px solid var(--border);
+}
+
+.examination-panel {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 20px;
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 30px rgba(7, 137, 48, 0.10);
+}
+
+.examination-panel h3 {
+  color: var(--secondary-color);
+  margin-bottom: 1rem;
+}
+
+.zoom-controls {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.zoom-btn {
+  flex: 1;
+  background: #ffffff;
+  border: 1px solid rgba(7, 137, 48, 0.25);
+  color: var(--primary-color);
+  padding: 0.75rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.zoom-btn:hover {
+  background: var(--primary-color);
+  color: white;
+}
+
+.findings-list {
+  background: rgba(255, 255, 255, 0.92);
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  min-height: 180px;
+  border: 1px solid var(--border);
+}
+
+.findings-list ul {
+  list-style: none;
+}
+
+.findings-list li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(7, 137, 48, 0.10);
+}
+
+/* ============================================
+   DETECTOR DE PÓLIPOS
+   ============================================ */
+
+.polyps-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.polyp-viewer,
+.polyp-classification {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 20px;
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 30px rgba(7, 137, 48, 0.10);
+}
+
+.viewer-screen {
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(7, 137, 48, 0.12);
+}
+
+#polyp-canvas {
+  width: 100%;
+  height: clamp(300px, 55vw, 500px);
+}
+
+.viewer-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.75rem;
+}
+
+.control-btn {
+  background: #ffffff;
+  border: 1px solid rgba(7, 137, 48, 0.25);
+  color: var(--primary-color);
+  padding: 0.9rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.control-btn:hover {
+  background: var(--primary-color);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.polyp-info {
+  background: rgba(255, 255, 255, 0.92);
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  border: 1px solid var(--border);
+}
+
+.classification-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.classify-btn {
+  padding: 1rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.02rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.benign-btn {
+  background: var(--success-color);
+  color: white;
+}
+.precancerous-btn {
+  background: var(--warning-color);
+  color: white;
+}
+.malignant-btn {
+  background: var(--error-color);
+  color: white;
+}
+
+.classify-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+}
+
+/* ============================================
+   DIETA SALUDABLE
+   ============================================ */
+
+.diet-container {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.plate-builder,
+.food-items-container {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 20px;
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 30px rgba(7, 137, 48, 0.10);
+}
+
+.plate {
+  width: 100%;
+  height: 400px;
+  background: white;
+  border-radius: 50%;
+  position: relative;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+}
+
+.plate-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+
+  gap: 0.5rem;
+  padding: 1rem;
+  position: relative;
+  transition: all 0.3s ease;
+
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  align-content: flex-start;
+}
+
+.plate-section:hover {
+  background: rgba(7, 137, 48, 0.06);
+}
+
+.vegetables,
+.proteins,
+.grains,
+.fruits {
+  background: #ffffff;
+  border: 1px solid rgba(7, 137, 48, 0.25);
+}
+
+.vegetables {
+  border-radius: 50% 0 0 0;
+}
+.proteins {
+  border-radius: 0 50% 0 0;
+}
+.grains {
+  border-radius: 0 0 0 50%;
+}
+.fruits {
+  border-radius: 0 0 50% 0;
+}
+
+.section-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: 800;
+  color: var(--primary-color);
+  font-size: 1.1rem;
+  z-index: 1;
+}
+
+.plate .food-item {
+  width: 84px;
+  padding: 0.45rem;
+  border-radius: 10px;
+}
+
+.plate .food-icon {
+  font-size: 1.6rem;
+  margin-bottom: 0.25rem;
+}
+
+.plate .food-name {
+  font-size: 0.75rem;
+  line-height: 1.05;
+}
+
+.plate .food-score {
+  display: none;
+}
+
+.score-bar {
+  width: 100%;
+  height: 28px;
+  background: rgba(7, 137, 48, 0.08);
+  border: 1px solid rgba(7, 137, 48, 0.25);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 1rem 0 0;
+}
+
+.score-fill {
+  height: 100%;
+  background: var(--primary-color);
+  transition: width 0.5s ease;
+  width: 0%;
+}
+
+.category-tab {
+  background: #ffffff;
+  border: 1px solid rgba(7, 137, 48, 0.25);
+  color: var(--primary-color);
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.category-tab.active,
+.category-tab:hover {
+  background: var(--primary-color);
+  color: white;
+}
+
+.food-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.food-item {
+  background: rgba(255, 255, 255, 0.96);
+  padding: 0.9rem;
+  border-radius: 12px;
+  border: 1px solid rgba(7, 137, 48, 0.25);
+  text-align: center;
+  cursor: grab;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.food-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(7, 137, 48, 0.16);
+}
+
+.food-item.on-plate {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.food-icon {
+  font-size: 2.6rem;
+  margin-bottom: 0.4rem;
+}
+
+.food-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.food-score {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 0.3rem;
+}
+
+/* ============================================
+   SÍNTOMAS CHECKER
+   ============================================ */
+
+.case-card {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 20px;
+  padding: 1.75rem;
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 30px rgba(7, 137, 48, 0.10);
+}
+
+.case-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.urgency-meter {
+  width: 150px;
+  height: 18px;
+  background: rgba(7, 137, 48, 0.08);
+  border: 1px solid rgba(7, 137, 48, 0.25);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.urgency-meter::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  border-radius: 999px;
+}
+
+.urgency-meter.low::after {
+  width: 33%;
+  background: var(--success-color);
+}
+
+.urgency-meter.medium::after {
+  width: 66%;
+  background: var(--warning-color);
+}
+
+.urgency-meter.high::after {
+  width: 100%;
+  background: var(--error-color);
+}
+
+.patient-info {
+  background: rgba(255, 255, 255, 0.92);
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  border: 1px solid var(--border);
+}
+
+.symptoms-list {
+  background: rgba(255, 255, 255, 0.92);
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.symptoms-list ul {
+  list-style: none;
+  padding-left: 1rem;
+}
+
+.symptoms-list li {
+  padding: 0.45rem 0;
+  position: relative;
+}
+
+.symptoms-list li::before {
+  content: "⚠️";
+  position: absolute;
+  left: -1.5rem;
+}
+
+.case-actions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.action-btn {
+  padding: 1rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.98rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.urgent-btn {
+  background: var(--primary-color);
+  color: white;
+}
+
+.normal-btn {
+  background: var(--success-color);
+  color: white;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(7, 137, 48, 0.18);
+}
+
+/* ============================================
+   SCREENING
+   ============================================ */
+
+.patient-profile {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 20px;
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 30px rgba(7, 137, 48, 0.10);
+  margin-bottom: 1rem;
+}
+
+.screening-options {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 20px;
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 30px rgba(7, 137, 48, 0.10);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.option-group select {
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid rgba(7, 137, 48, 0.25);
+  color: var(--text-primary);
+  padding: 0.8rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.option-group select:focus {
+  outline: none;
+  border-color: rgba(7, 137, 48, 0.45);
+}
+
+/* ============================================
+   PANTALLA DE VICTORIA
+   ============================================ */
+
+.victory-screen {
+  text-align: center;
+}
+
+.trophy-animation i {
+  font-size: 6rem;
+  color: var(--primary-color);
+  animation: trophy-spin 3s ease-in-out infinite;
+}
+
+@keyframes trophy-spin {
+  0%,
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(10deg) scale(1.05);
+  }
+}
+
+.confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.victory-subtitle {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+.final-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.stat-box {
+  background: rgba(255, 255, 255, 0.92);
+  padding: 1.5rem;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 30px rgba(7, 137, 48, 0.10);
+}
+
+.stat-box i {
+  font-size: 2.6rem;
+  color: var(--primary-color);
+  margin-bottom: 0.75rem;
+}
+
+.stat-number {
+  display: block;
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--secondary-color);
+  margin-bottom: 0.25rem;
+}
+
+.achievements,
+.knowledge-summary {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 20px;
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 30px rgba(7, 137, 48, 0.10);
+  margin-bottom: 1rem;
+}
+
+.achievement-badge {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(255, 255, 255, 0.96);
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 0.75rem;
+  border-left: 4px solid var(--primary-color);
+  border: 1px solid rgba(7, 137, 48, 0.12);
+}
+
+.ach-icon {
+  font-size: 2.2rem;
+}
+
+.knowledge-summary ul {
+  text-align: left;
+  max-width: 800px;
+  margin: 0 auto;
+  list-style: none;
+}
+
+.knowledge-summary li {
+  padding: 0.7rem 0;
+  padding-left: 2rem;
+  position: relative;
+  border-bottom: 1px solid rgba(7, 137, 48, 0.10);
+}
+
+.knowledge-summary li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--secondary-color);
+  font-weight: 900;
+  font-size: 1.1rem;
+}
+
+.victory-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.secondary-btn {
+  background: #ffffff;
+  border: 1px solid rgba(7, 137, 48, 0.25);
+  color: var(--primary-color);
+  padding: 0.9rem 1.4rem;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.secondary-btn:hover {
+  background: var(--primary-color);
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* ============================================
+   TOAST / FEEDBACK
+   ============================================ */
+
+.feedback-toast {
+  position: fixed;
+  top: 90px;
+  right: 1rem;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--text-primary);
+  padding: 1rem 1.2rem;
+  border-radius: 12px;
+  border-left: 4px solid;
+  box-shadow: 0 10px 30px rgba(7, 137, 48, 0.16);
+  z-index: 1000;
+  transform: translateX(400px);
+  opacity: 0;
+  transition: all 0.3s ease;
+  max-width: min(380px, 92vw);
+}
+
+.feedback-toast.show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.feedback-toast.success {
+  border-left-color: var(--success-color);
+}
+
+.feedback-toast.error {
+  border-left-color: var(--error-color);
+}
+
+.feedback-toast.achievement {
+  border-left-color: var(--primary-color);
+  background: var(--primary-color);
+  color: white;
+}
+
+/* ============================================
+   BOTÓN FLOTANTE DE CONTINUAR
+   ============================================ */
+
+.floating-continue {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  z-index: 1000;
+}
+
+.continue-btn {
+  background: var(--primary-color);
+  border: none;
+  padding: 14px 18px;
+  border-radius: 999px;
+  color: white;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  box-shadow: 0 10px 28px rgba(7, 137, 48, 0.25);
+  white-space: nowrap;
+}
+
+.continue-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.02);
+  box-shadow: 0 14px 36px rgba(7, 137, 48, 0.32);
+}
+
+.continue-btn.disabled {
+  background: #ffffff;
+  border: 1px solid rgba(7, 137, 48, 0.25);
+  color: var(--primary-color);
+  cursor: not-allowed;
+  opacity: 0.7;
+  box-shadow: 0 8px 20px rgba(7, 137, 48, 0.12);
+}
+
+.continue-btn.disabled:hover {
+  transform: none;
+  filter: none;
+  box-shadow: 0 8px 20px rgba(7, 137, 48, 0.12);
+}
+
+.continue-btn:not(.disabled) {
+  animation: pulseGreen 2s infinite;
+}
+
+.continue-btn i:first-child {
+  font-size: 18px;
+  color: white;
+}
+
+.continue-btn i:last-child {
+  font-size: 14px;
+}
+
+.continue-btn:not(.disabled) i:last-child {
+  animation: slideRight 2s infinite;
+}
+
+@keyframes slideRight {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(5px);
+  }
+}
+
+@keyframes pulseGreen {
+  0%,
+  100% {
+    box-shadow: 0 10px 28px rgba(7, 137, 48, 0.25);
+  }
+  50% {
+    box-shadow: 0 16px 44px rgba(24, 179, 74, 0.30);
+  }
+}
+
+/* ============================================
+   RESPONSIVE (BREAKPOINTS ORDENADOS)
+   ============================================ */
+
+@media (max-width: 1200px) {
+  .risk-zones {
+    grid-template-columns: 1fr;
+  }
+
+  .colonoscopy-container,
+  .polyps-container,
+  .diet-container {
+    grid-template-columns: 1fr;
+  }
+
+  .screening-options {
+    grid-template-columns: 1fr;
+  }
+
+  .header-right {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Header en columna */
+  .level-header {
+    align-items: flex-start;
+  }
+
+  /* IZQUIERDA: botón arriba, texto abajo */
+  .header-left {
+    flex: 1  100%;
+    flex-direction: column;     /* CLAVE */
+    align-items: flex-start;    /* CLAVE */
+    gap: 8px;
+  }
+
+
+  /* Por si tu h1 se “pega” */
+  .level-info {
+    width: 100%;
+  }
+
+  .level-info h1 {
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .mission-text {
+    margin-top: 2px;
+  }
+
+  /* DERECHA: stats a lo ancho y que bajen */
+  .header-right {
+    flex: 1 1 100%;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .stat-card {
+    flex: 1 1 48%;
+    min-width: 150px;
+  }
+}
+
+
+@media (max-width: 420px) {
+  .stat-card {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .header-btn {
+    padding: 0.65rem;
+    font-size: 1.05rem;
+  }
+
+  .primary-btn {
+    font-size: 1rem;
+  }
+
+  .plate {
+    height: 280px;
+  }
+
+  .plate .food-item {
+    width: 70px;
+  }
+}
+/* ===== FIX TABLET: evitar que stats queden a la derecha ===== */
+@media (max-width: 1024px) {
+  .level-header {
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 10px !important;
+  }
+
+  .header-left {
+    width: 100% !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 8px !important;
+  }
+
+  .level-info {
+    width: 100% !important;
+    text-align: center !important;
+  }
+
+  /* Stats debajo */
+  .header-right {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}
+
+/* En móvil: 2 columnas (Puntos/Tiempo) + Vidas abajo */
+@media (max-width: 768px) {
+  .header-right {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  .stat-card.lives-card,
+  .stat-card:has(.lives) {
+    grid-column: 1 / -1 !important;
+  }
+}

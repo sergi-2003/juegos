@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nivel 1: Detective de Salud - Cáncer de Mama | VitaGuard Heroes</title>
+
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/levels/breast-cancer-level.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+</head>
+
+<body class="game-level">
+  <!-- HUD -->
+  <div id="game-hud" class="game-hud">
+    <div class="hud-left">
+      <div class="level-info">
+        <h3><i class="fas fa-ribbon"></i> Nivel 1: Detective de Salud</h3>
+        <p>Misión: Cáncer de Mama</p>
+      </div>
+    </div>
+
+    <div class="hud-center">
+      <div class="health-bar">
+        <div class="hearts">
+          <i class="fas fa-heart" id="heart1"></i>
+          <i class="fas fa-heart" id="heart2"></i>
+          <i class="fas fa-heart" id="heart3"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="hud-right">
+      <div class="score-display">
+        <span>Puntuación</span>
+        <div class="score" id="current-score">0</div>
+      </div>
+      <div class="timer">
+        <i class="fas fa-clock"></i>
+        <span id="game-timer">05:00</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENEDOR -->
+  <div id="game-container" class="game-container">
+    <!-- INTRO -->
+    <div id="intro-screen" class="game-screen active">
+      <div class="intro-content">
+        <div class="mission-briefing">
+          <div class="briefing-header">
+            <div class="doctor-avatar">
+              <i class="fas fa-user-md"></i>
+            </div>
+            <h2>¡Hola, Bienvenido!</h2>
+            <p class="doctor-title">Aprenderas sobre la detección temprana y autotest cancer de seno</p>
+          </div>
+
+          <div class="briefing-text">
+            <h3>🎯 Misión: Autotest</h3>
+            <p><strong>Héroe,</strong> necesitamos tu ayuda. Tu misión es aprender las técnicas de autoexploración mamaria y detectar anomalías importantes.</p>
+
+            <div class="mission-objectives">
+              <h4>📋 Objetivos de la Misión:</h4>
+              <ul>
+                <li>🔍 Aprender la técnica correcta de autoexploración</li>
+                <li>🎯 Identificar zonas de examen importantes</li>
+                <li>⚠️ Reconocer signos de alerta</li>
+                <li>📅 Entender la frecuencia recomendada</li>
+                <li>🏆 Convertirte en un experto en prevención</li>
+              </ul>
+            </div>
+
+            <div class="difficulty-info">
+              <span class="difficulty-badge basic">Nivel: Básico</span>
+              <span class="time-estimate">⏱️ Tiempo estimado: 5-7 minutos</span>
+            </div>
+          </div>
+
+          <div class="briefing-actions">
+            <button class="btn-start-mission" onclick="breastCancerGame.startMission()">
+              <i class="fas fa-play"></i>
+              Comenzar Misión
+            </button>
+            <button class="btn-back" onclick="breastCancerGame.goBack()">
+              <i class="fas fa-arrow-left"></i>
+              Volver al Menú
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TUTORIAL -->
+    <div id="tutorial-screen" class="game-screen">
+      <div class="tutorial-content">
+        <div class="tutorial-header">
+          <h2>📚 Guía para Autoexploración Mamaria</h2>
+          <div class="progress-bar">
+            <div class="progress-fill" id="tutorial-progress"></div>
+          </div>
+          <span class="step-counter">Paso <span id="current-step">1</span> de <span id="total-steps">5</span></span>
+        </div>
+
+        <div class="tutorial-main">
+          <div class="tutorial-visual">
+            <div class="anatomy-diagram" id="anatomy-diagram"></div>
+          </div>
+
+          <div class="tutorial-instructions">
+            <div class="instruction-card" id="instruction-card"></div>
+
+            <div class="tutorial-controls">
+              <button class="btn-prev" id="btn-prev" onclick="breastCancerGame.previousStep()" disabled>
+                <i class="fas fa-chevron-left"></i>
+                Anterior
+              </button>
+              <button class="btn-next" id="btn-next" onclick="breastCancerGame.nextStep()">
+                Siguiente
+                <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DETECCIÓN -->
+    <div id="detection-game-screen" class="game-screen">
+      <div class="detection-content">
+        <div class="game-header">
+          <h2>🔍 Práctica de Detección</h2>
+          <p>Encuentra las anomalías haciendo clic en las áreas sospechosas</p>
+        </div>
+
+        <div class="detection-area">
+          <!-- Quita "hotspots-invisible" si quieres ver las zonas desde el inicio -->
+          <div class="examination-model hotspots-invisible" id="examination-model">
+            <!-- IMAGEN BASE -->
+            <img
+              class="exam-base"
+              src="/img/area-palpacion.png"
+              alt="Modelo de autoexploración"
+              draggable="false"
+              loading="eager"
+            />
+
+            <!-- Zonas -->
+            <div class="detection-zones"></div>
+
+            <!-- Mano -->
+            <div class="scanning-hand" id="scanning-hand">
+              <i class="fas fa-hand-paper"></i>
+            </div>
+          </div>
+
+          <div class="detection-feedback" id="detection-feedback"></div>
+        </div>
+
+        <div class="detection-sidebar">
+          <div class="findings-panel">
+            <h3>📋 Hallazgos</h3>
+            <div class="findings-list" id="findings-list"></div>
+          </div>
+
+          <div class="hints-panel">
+            <h3>💡 Pistas</h3>
+            <div class="hint-display" id="hint-display">
+              <p>Examina sistemáticamente cada cuadrante...</p>
+            </div>
+            <button class="btn-hint" onclick="breastCancerGame.showHint()">
+              <i class="fas fa-lightbulb"></i>
+              Pista
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUIZ -->
+    <div id="quiz-screen" class="game-screen">
+      <div class="quiz-content">
+        <div class="quiz-header">
+          <h2>🧠 Evaluación de Conocimientos</h2>
+          <div class="quiz-progress">
+            <span>Pregunta <span id="question-number">1</span> de <span id="total-questions">5</span></span>
+            <div class="quiz-progress-bar">
+              <div class="quiz-progress-fill" id="quiz-progress"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="quiz-main">
+          <div class="question-card" id="question-card"></div>
+          <div class="answer-options" id="answer-options"></div>
+          <div class="quiz-feedback" id="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-controls">
+          <button class="btn-submit-answer" id="btn-submit" onclick="breastCancerGame.submitAnswer()" disabled>
+            <i class="fas fa-check"></i>
+            Confirmar Respuesta
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULTADOS -->
+    <div id="results-screen" class="game-screen">
+      <div class="results-content">
+        <div class="results-header">
+          <div class="completion-badge" id="completion-badge">
+            <i class="fas fa-trophy"></i>
+          </div>
+          <h2 id="results-title">¡Misión Completada!</h2>
+          <p id="results-subtitle">Has dominado la autoexploración mamaria</p>
+        </div>
+
+        <div class="results-stats">
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-star"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">Puntuación Final</span>
+              <span class="stat-value" id="final-score">0</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-bullseye"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">Precisión</span>
+              <span class="stat-value" id="accuracy-score">0%</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-clock"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">Tiempo</span>
+              <span class="stat-value" id="completion-time">00:00</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="results-achievements">
+          <h3>🏆 Logros Obtenidos</h3>
+          <div class="achievements-grid" id="achievements-earned"></div>
+        </div>
+
+        <div class="results-knowledge">
+          <h3>📚 Conocimientos Adquiridos</h3>
+          <div class="knowledge-checklist">
+            <div class="knowledge-item completed"><i class="fas fa-check"></i><span>Técnica correcta de autoexploración</span></div>
+            <div class="knowledge-item completed"><i class="fas fa-check"></i><span>Identificación de zonas importantes</span></div>
+            <div class="knowledge-item completed"><i class="fas fa-check"></i><span>Reconocimiento de signos de alerta</span></div>
+            <div class="knowledge-item completed"><i class="fas fa-check"></i><span>Frecuencia recomendada de examen</span></div>
+          </div>
+        </div>
+
+        <div class="results-actions">
+          <button class="btn-continue" onclick="breastCancerGame.continueToNextLevel()">
+            <i class="fas fa-arrow-right"></i>
+            Siguiente Nivel
+          </button>
+          <button class="btn-replay" onclick="breastCancerGame.replayLevel()">
+            <i class="fas fa-redo"></i>
+            Repetir Nivel
+          </button>
+          <button class="btn-menu" onclick="breastCancerGame.goToMenu()">
+            <i class="fas fa-home"></i>
+            Menú Principal
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAUSA -->
+  <div id="pause-overlay" class="game-overlay hidden">
+    <div class="overlay-content">
+      <h2>⏸️ Juego Pausado</h2>
+      <div class="pause-actions">
+        <button class="btn-resume" onclick="breastCancerGame.resumeGame()"><i class="fas fa-play"></i>Continuar</button>
+        <button class="btn-restart" onclick="breastCancerGame.restartLevel()"><i class="fas fa-redo"></i>Reiniciar</button>
+        <button class="btn-exit" onclick="breastCancerGame.exitLevel()"><i class="fas fa-door-open"></i>Salir</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/auth.js"></script>
+  <script src="js/animations.js"></script>
+  <script src="js/levels/breast-cancer-data.js"></script>
+  <script src="js/levels/breast-cancer-game.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof AuthClient !== 'undefined') {
+        window.authClient = new AuthClient();
+      }
+      window.breastCancerGame = new BreastCancerGame();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (!window.breastCancerGame) return;
+
+      switch (e.key) {
+        case 'Escape':
+          window.breastCancerGame.togglePause();
+          break;
+        case ' ':
+          e.preventDefault();
+          if (window.breastCancerGame.currentPhase === 'detection' && window.breastCancerGame.activateScanning) {
+            window.breastCancerGame.activateScanning();
+          }
+          break;
+      }
+    });
+  </script>
+</body>
+</html>

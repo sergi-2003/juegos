@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nivel 4: Centro de Prevención del Colon - VitaGuard Heroes</title>
+    <link rel="stylesheet" href="css/levels/colon-cancer-level.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Pantalla de Carga -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="dna-spiral">
+                <div class="helix-strand"></div>
+                <div class="helix-strand"></div>
+                <div class="helix-strand"></div>
+            </div>
+            <h2>🔬 Cargando Centro de Prevención del Colon...</h2>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+            <p class="loading-text">Preparando equipamiento médico avanzado...</p>
+        </div>
+    </div>
+
+    <!-- Header del Nivel -->
+    <header class="level-header">
+        <div class="header-left">
+            <button id="pause-btn" class="header-btn">
+                 <img src="./img/logo-prueba-alcaldia-redsalud.png" alt="Pausar" class="btn-icon">
+            </button>
+            
+            <div class="level-info">
+                <h1>🏥 Nivel 4: Centro de Prevención del Colon</h1>
+                <p class="mission-text">El Nivel Final - Prevención del Cáncer Colorrectal</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="stat-card">
+                <i class="fas fa-trophy"></i>
+                <div class="stat-content">
+                    <span class="stat-label">Puntos</span>
+                    <span id="current-score" class="stat-value">0</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-clock"></i>
+                <div class="stat-content">
+                    <span class="stat-label">Tiempo</span>
+                    <span id="timer" class="stat-value">8:00</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-heart"></i>
+                <div class="stat-content">
+                    <span class="stat-label">Vidas</span>
+                    <div id="lives-container" class="lives">
+                        <i class="fas fa-heart heart" id="heart1">❤️</i>
+                        <i class="fas fa-heart heart" id="heart2">❤️</i>
+                        <i class="fas fa-heart heart" id="heart3">❤️</i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenedor Principal -->
+    <main class="game-container">
+
+        <!-- FASE 1: Introducción -->
+        <section id="intro-phase" class="game-phase active">
+            <div class="intro-content">
+                <div class="intro-hero">
+                    
+                    <img src="./img/colon.png" alt="Pausar" class="btn-icon">
+                    <div class="colon-animation">
+                    </div>
+                    <h2 class="titulo">🏥 Bienvenido al Centro de Prevención del Colon</h2>
+                    <p class="intro-subtitle">El nivel más avanzado - Domina la prevención del cáncer colorrectal</p>
+                </div>
+                <div class="intro-features">
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>7 Fases Interactivas</h3>
+                        <p>El nivel más completo del juego</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">🍎</div>
+                        <h3>Nutrición Preventiva</h3>
+                        <p>Aprende la dieta ideal para prevenir</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚕️</div>
+                        <h3>Detección Temprana</h3>
+                        <p>Identifica pólipos y síntomas</p>
+                    </div>
+                </div>
+                <button id="start-game" class="primary-btn pulse-btn">
+                    <i class="fas fa-play"></i> Comenzar Nivel Final
+                </button>
+         <br>
+                <button class="primary-btn pulse-btn" onclick="confirm('¿Deseas volver al menú principal?') && (window.location.href='index.html')">
+                <i class="fas fa-arrow-left"></i>Volver</button>
+
+
+                
+            </div>
+        </section>
+
+        <!-- FASE 2: Factores de Riesgo -->
+        <section id="risk-factors-phase" class="game-phase">
+            <div class="phase-header">
+                <h2>⚖️ Factores de Riesgo vs Protección</h2>
+                <p>Clasifica los factores según su impacto en el cáncer de colon</p>
+                <div class="progress-badge">
+                    <span id="risk-progress">0/12</span>
+                </div>
+            </div>
+            <div class="risk-container">
+                <div class="risk-zones">
+                    <div class="risk-zone protection-zone" id="protection-zone">
+                        <div class="zone-header">
+                            <i class="fas fa-shield-alt"></i>
+                            <h3>Protección</h3>
+                        </div>
+                        <div class="zone-content" data-zone="protection"></div>
+                    </div>
+                    <div class="risk-zone items-pool" id="items-pool">
+                        <div class="zone-header">
+                            <i class="fas fa-boxes"></i>
+                            <h3>Arrastra a la zona correcta</h3>
+                        </div>
+                        <div class="zone-content" id="risk-items"></div>
+                    </div>
+                    <div class="risk-zone danger-zone" id="danger-zone">
+                        <div class="zone-header">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h3>Riesgo</h3>
+                        </div>
+                        <div class="zone-content" data-zone="danger"></div>
+                    </div>
+                </div>
+                
+                <!-- Botón flotante - OCULTO hasta completar 12/12 -->
+                <div id="floating-continue" style="position: fixed; bottom: 30px; right: 30px; z-index: 99999; display: none; opacity: 1;">
+                    <button id="continue-to-colonoscopy" style="background: linear-gradient(135deg, #4caf50, #66bb6a); color: white; padding: 20px 35px; border: none; border-radius: 12px; cursor: pointer; font-size: 18px; font-weight: bold; box-shadow: 0 8px 30px rgba(76,175,80,0.6); transition: all 0.3s;">
+  <span style="font-size: 20px;">🔍</span> CONTINUAR A PÓLIPOS <span style="font-size: 20px;">→</span>
+</button>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- FASE 3: Colonoscopía Virtual -->
+       
+
+        <!-- FASE 4: Detector de Pólipos -->
+       
+        <!-- FASE 5: Dieta Saludable -->
+        <section id="diet-phase" class="game-phase">
+            <div class="phase-header">
+                <h2>🍎 Nutrición para la Prevención</h2>
+                <p>Crea el plato perfecto para prevenir el cáncer de colon</p>
+                <div class="progress-badge">
+                    <span id="diet-progress">0/15</span>
+                </div>
+            </div>
+            <div class="diet-container">
+                <div class="plate-builder">
+                    <div class="plate" id="healthy-plate">
+                        <div class="plate-section vegetables" data-category="vegetables">
+                            <span class="section-label">Vegetales</span>
+                        </div>
+                        <div class="plate-section proteins" data-category="proteins">
+                            <span class="section-label">Proteínas</span>
+                        </div>
+                        <div class="plate-section grains" data-category="grains">
+                            <span class="section-label">Granos</span>
+                        </div>
+                        <div class="plate-section fruits" data-category="fruits">
+                            <span class="section-label">Frutas</span>
+                        </div>
+                    </div>
+                    <div class="plate-score">
+                        <h3>Puntuación del Plato</h3>
+                        <div class="score-bar">
+                            <div class="score-fill" id="plate-score-fill"></div>
+                        </div>
+                        <p id="plate-score-text">0/100</p>
+                    </div>
+                </div>
+                <div class="food-items-container">
+                    <h3>Alimentos Disponibles</h3>
+                    <div class="food-categories">
+                        <button class="category-tab active" data-category="all">Todos</button>
+                        <button class="category-tab" data-category="vegetables">Vegetales</button>
+                        <button class="category-tab" data-category="proteins">Proteínas</button>
+                        <button class="category-tab" data-category="grains">Granos</button>
+                        <button class="category-tab" data-category="fruits">Frutas</button>
+                    </div>
+                    <div class="food-items" id="food-items"></div>
+                </div>
+            </div>
+            <button id="verify-plate" class="primary-btn">
+                <i class="fas fa-check"></i> Verificar Plato
+            </button>
+        </section>
+
+        <!-- FASE 6: Síntomas Checker -->
+        <section id="symptoms-phase" class="game-phase">
+            <div class="phase-header">
+                <h2>⚠️ Identificador de Síntomas</h2>
+                <p>Reconoce las señales de alarma del cáncer de colon</p>
+                <div class="progress-badge">
+                    <span id="symptoms-progress">0/10</span>
+                </div>
+            </div>
+            <div class="symptoms-container">
+                <div class="patient-cases" id="patient-cases">
+                    <div class="case-card" id="current-case">
+                        <div class="case-header">
+                            <h3>Caso Clínico <span id="case-number">1</span></h3>
+                            <div class="urgency-meter" id="urgency-meter"></div>
+                        </div>
+                        <div class="case-content">
+                            <div class="patient-info" id="patient-info"></div>
+                            <div class="symptoms-list" id="symptoms-list"></div>
+                        </div>
+                        <div class="case-actions">
+                            <button class="action-btn urgent-btn" data-action="urgent">
+                                <i class="fas fa-ambulance"></i> Urgente
+                            </button>
+                            <button class="action-btn screening-btn" data-action="screening">
+                                <i class="fas fa-calendar-check"></i> Screening
+                            </button>
+                            <button class="action-btn monitoring-btn" data-action="monitoring">
+                                <i class="fas fa-eye"></i> Monitoreo
+                            </button>
+                            <button class="action-btn normal-btn" data-action="normal">
+                                <i class="fas fa-check"></i> Normal
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FASE 7: Calendario de Screening -->
+        <section id="screening-phase" class="game-phase">
+            <div class="phase-header">
+                <h2>📅 Calendario de Screening Personalizado</h2>
+                <p>Programa las colonoscopías según edad y factores de riesgo</p>
+            </div>
+            <div class="screening-container">
+                <div class="patient-profile">
+                    <h3>Perfil del Paciente</h3>
+                    <div id="screening-patient-info"></div>
+                </div>
+                <div class="screening-options">
+                    <div class="option-group">
+                        <label>Primera colonoscopía:</label>
+                        <select id="first-screening">
+                            <option value="">Seleccionar...</option>
+                            <option value="ahora">Ahora (inmediato)</option>
+                            <option value="45">A los 45 años</option>
+                            <option value="50">A los 50 años</option>
+                            <option value="no-necesario">No necesario aún</option>
+                        </select>
+                    </div>
+                    <div class="option-group">
+                        <label>Frecuencia de seguimiento:</label>
+                        <select id="screening-frequency">
+                            <option value="">Seleccionar...</option>
+                            <option value="1-año">Cada año</option>
+                            <option value="3-años">Cada 3 años</option>
+                            <option value="5-años">Cada 5 años</option>
+                            <option value="10-años">Cada 10 años</option>
+                        </select>
+                    </div>
+                    <div class="option-group">
+                        <label>Pruebas adicionales:</label>
+                        <select id="additional-tests">
+                            <option value="">Seleccionar...</option>
+                            <option value="sangre-oculta">Test de sangre oculta anual</option>
+                            <option value="sigmoidoscopia">Sigmoidoscopia cada 5 años</option>
+                            <option value="colonoscopia-virtual">Colonoscopía virtual</option>
+                            <option value="ninguna">Ninguna adicional</option>
+                        </select>
+                    </div>
+                    <div class="option-group">
+                        <label>Seguimiento especial:</label>
+                        <select id="special-monitoring">
+                            <option value="">Seleccionar...</option>
+                            <option value="alto-riesgo">Alto riesgo (anual)</option>
+                            <option value="historial-familiar">Con historial familiar</option>
+                            <option value="polipos-previos">Pólipos previos</option>
+                            <option value="estandar">Seguimiento estándar</option>
+                        </select>
+                    </div>
+                </div>
+                <button id="verify-screening" class="primary-btn">
+                    <i class="fas fa-check-circle"></i> Verificar Plan
+                </button>
+            </div>
+        </section>
+
+        <!-- Pantalla de Victoria -->
+        <section id="victory-screen" class="game-phase victory-screen">
+            <div class="victory-content">
+                <div class="trophy-animation">
+                    <i class="fas fa-trophy"></i>
+                    <div class="confetti"></div>
+                </div>
+                <h2 class="victory-title">¡Centro Completado!</h2>
+                <p class="victory-subtitle">Has dominado el nivel más complejo del juego</p>
+                <div class="final-stats">
+                    <div class="stat-box">
+                        <i class="fas fa-star"></i>
+                        <span class="stat-number" id="final-score">0</span>
+                        <span class="stat-label">Puntos Totales</span>
+                    </div>
+                    <div class="stat-box">
+                        <i class="fas fa-clock"></i>
+                        <span class="stat-number" id="final-time">0:00</span>
+                        <span class="stat-label">Tiempo</span>
+                    </div>
+                    <div class="stat-box">
+                        <i class="fas fa-bullseye"></i>
+                        <span class="stat-number" id="final-accuracy">0%</span>
+                        <span class="stat-label">Precisión</span>
+                    </div>
+                    <div class="stat-box">
+                        <i class="fas fa-award"></i>
+                        <span class="stat-number" id="final-rank">-</span>
+                        <span class="stat-label">Rango</span>
+                    </div>
+                </div>
+                <div class="achievements" id="achievements-list"></div>
+                <div class="knowledge-summary">
+                    <h3>📚 Conocimientos Adquiridos:</h3>
+                    <ul id="learning-points"></ul>
+                </div>
+                <div class="victory-actions">
+                    <button id="retry-btn" class="secondary-btn">
+                        <i class="fas fa-redo"></i> Reintentar Nivel
+                    </button>
+                    <button id="menu-btn" class="primary-btn">
+                        <i class="fas fa-home"></i> Menú Principal
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Scripts -->
+    <script src="js/levels/colon-cancer-data.js"></script>
+    <script src="js/levels/colon-cancer-game.js"></script>
+</body>
+</html>

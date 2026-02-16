@@ -404,7 +404,7 @@ const CERVICAL_DATA = {
 
 // Configuración del juego
 const GAME_CONFIG = {
-    totalTime: 700, // 7 minutos
+    totalTime: 10*60, // 7 minutos
     phases: [
         { id: 'timeline', name: 'Línea de Tiempo VPH', maxScore: 900 },
         { id: 'pap', name: 'Simulador Papanicolaou', maxScore: 2000 },

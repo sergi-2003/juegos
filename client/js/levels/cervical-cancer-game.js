@@ -1019,7 +1019,7 @@ resetDraggedStyles(el) {
         clearInterval(this.timer);
         
         const totalTime = Math.floor((Date.now() - this.startTime) / 1000);
-        const timeTaken = 420 - this.gameTime; // 7 minutos total
+        const timeTaken = 600 - this.gameTime; // 10 minutos total
         
         // Calcular bonificaciones solo si no perdió
         if (!this.gameOverByLoss) {

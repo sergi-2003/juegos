@@ -9,7 +9,7 @@ class CervicalCancerGame {
         this.currentPhase = 'intro';
         this.score = 0;
         this.lives = 3;
-        this.gameTime = 420; // 7 minutos
+        this.gameTime = 600; // 10 minutos
         this.isPaused = false;
         this.timer = null;
         this.startTime = null;

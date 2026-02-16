@@ -369,115 +369,265 @@ setupContinueButton() {
     // ============================================
     // FASE 4: DIETA SALUDABLE
     // ============================================
-    
-    initDietPhase() {
-        console.log('🍎 Iniciando fase de nutrición...');
-        this.plateScore = 0;
-        this.phaseProgress.diet.completed = 0; // Resetear contador
-        this.createFoodItems();
-        this.setupPlateDragDrop();
-        this.updateProgress('diet');
-    }
-    
-    createFoodItems() {
-        const container = document.getElementById('food-items');
-        container.innerHTML = '';
-        
-        COLON_DATA.foods.forEach(food => {
-            const item = document.createElement('div');
-            item.className = 'food-item';
-            item.draggable = true;
-            item.dataset.id = food.id;
-            item.dataset.category = food.category;
-            item.dataset.score = food.healthScore;
-            item.innerHTML = `
-                <div class="food-icon">${food.icon}</div>
-                <div class="food-name">${food.name}</div>
-                <div class="food-score">${food.healthScore}</div>
-            `;
-            
-            item.addEventListener('dragstart', (e) => this.handleDragStart(e));
-            item.addEventListener('dragend', (e) => this.handleDragEnd(e));
-            
-            container.appendChild(item);
-        });
-    }
-    
-    setupPlateDragDrop() {
-        const sections = document.querySelectorAll('.plate-section');
-        sections.forEach(section => {
-            section.addEventListener('dragover', (e) => this.handleDragOver(e));
-            section.addEventListener('drop', (e) => this.handleFoodDrop(e));
-        });
-        
-        document.getElementById('verify-plate').addEventListener('click', () => this.verifyPlate());
-    }
-    
-   handleFoodDrop(e) {
-  e.preventDefault();
+   // ============================================
+// FASE 2: NUTRICIÓN (DIET) - FIX PC + MÓVIL
+// ============================================
 
-  if (!this.draggedElement) return;
+initDietPhase() {
+  console.log('🍎 Iniciando fase de nutrición...');
+  this.plateScore = 0;
+  this.phaseProgress.diet.completed = 0;
+  this.phaseProgress.diet.perfect = true;
 
-  const section = e.target.closest('.plate-section');
+  this.createFoodItems();
+  this.setupPlateDragDrop();
+  this.setupPlateTouchDrag();     // ✅ MÓVIL
+  this.updateProgress('diet');
+}
 
-  // 🔴 PROTECCIÓN CRÍTICA
-  if (!section) {
-    this.showFeedback('❌ Suelta el alimento dentro de una sección del plato', 'error');
+createFoodItems() {
+  const container = document.getElementById('food-items');
+  if (!container) {
+    console.error('❌ No existe #food-items');
     return;
   }
 
-  const foodCategory = this.draggedElement.dataset.category;
+  container.innerHTML = '';
+
+  COLON_DATA.foods.forEach(food => {
+    const item = document.createElement('div');
+    item.className = 'food-item';
+    item.draggable = true;
+
+    item.dataset.id = food.id;
+    item.dataset.category = food.category;
+    item.dataset.score = food.healthScore;
+
+    item.innerHTML = `
+      <div class="food-icon">${food.icon}</div>
+      <div class="food-name">${food.name}</div>
+      <div class="food-score">${food.healthScore}</div>
+    `;
+
+    // ✅ Desktop drag
+    item.addEventListener('dragstart', (e) => this.handleDragStart(e));
+    item.addEventListener('dragend', (e) => this.handleDragEnd(e));
+
+    // ✅ Recomendado móvil (no selecciona texto / permite scroll normal)
+    item.style.userSelect = 'none';
+    item.style.touchAction = 'pan-y';
+
+    container.appendChild(item);
+  });
+}
+
+setupPlateDragDrop() {
+  const sections = document.querySelectorAll('.plate-section');
+  sections.forEach(section => {
+    section.addEventListener('dragover', (e) => this.handleDragOver(e));
+    section.addEventListener('drop', (e) => this.handleFoodDrop(e));
+  });
+
+  // ✅ No dupliques listeners si entras/sales de fases
+  const verifyBtn = document.getElementById('verify-plate');
+  if (verifyBtn) {
+    verifyBtn.onclick = () => this.verifyPlate();
+  }
+}
+
+// ✅ PC (drop nativo)
+handleFoodDrop(e) {
+  e.preventDefault();
+  if (!this.draggedElement) return;
+
+  const section = e.target.closest('.plate-section');
+  if (!section) {
+    this.showFeedback('❌ Suelta el alimento dentro de una sección del plato', 'error');
+    this.draggedElement = null; // ✅ evita que quede “pegado”
+    return;
+  }
+
+  this.processFoodDrop(section, this.draggedElement);
+  this.draggedElement = null;
+}
+
+// ✅ lógica común (PC + móvil)
+processFoodDrop(section, item) {
+  const foodCategory = item.dataset.category;
   const sectionCategory = section.dataset.category;
 
   if (foodCategory === sectionCategory) {
-    section.appendChild(this.draggedElement);
-    this.draggedElement.classList.add('on-plate');
-    this.draggedElement.draggable = false;
+    section.appendChild(item);
+    item.classList.add('on-plate');
 
-    const score = parseInt(this.draggedElement.dataset.score, 10);
+    item.draggable = false;
+    item.setAttribute('draggable', 'false');
+
+    const score = parseInt(item.dataset.score, 10) || 0;
     this.plateScore += score;
 
     this.updatePlateScore();
     this.phaseProgress.diet.completed++;
     this.updateProgress('diet');
   } else {
-    this.showFeedback(
-      `❌ Este alimento no pertenece a ${section.querySelector('.section-label').textContent}`,
-      'error'
-    );
+    const label = section.querySelector('.section-label')?.textContent || 'esa sección';
+    this.phaseProgress.diet.perfect = false;
+    this.showFeedback(`❌ Este alimento no pertenece a ${label}`, 'error');
   }
-
-  this.draggedElement = null;
 }
 
-    
-    updatePlateScore() {
-        const maxScore = 100 * 15; // 15 alimentos máximo
-        const percentage = Math.min((this.plateScore / maxScore) * 100, 100);
-        document.getElementById('plate-score-fill').style.width = percentage + '%';
-        document.getElementById('plate-score-text').textContent = Math.round(percentage) + '/100';
+// ✅ MÓVIL/TABLET - Touch drag con long-press
+setupPlateTouchDrag() {
+  if (!this.isTouchDevice || !this.isTouchDevice()) return;
+
+  const host = document.getElementById('food-items');
+  if (!host) return;
+
+  const dropTargetsSelector = '.plate-section';
+
+  host.addEventListener('pointerdown', (e) => {
+    const item = e.target.closest('.food-item');
+    if (!item) return;
+    if (item.draggable === false || item.getAttribute('draggable') === 'false') return;
+
+    let dragging = false;
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const prevOverflow = document.body.style.overflow;
+
+    const startDrag = () => {
+      dragging = true;
+      this.draggedElement = item;
+
+      document.body.style.overflow = 'hidden';
+
+      item.classList.add('dragging-touch');
+      item.style.position = 'fixed';
+      item.style.zIndex = '999999';
+      item.style.pointerEvents = 'none';
+      item.style.transform = 'translate(-50%, -50%)';
+
+      item.style.left = e.clientX + 'px';
+      item.style.top = e.clientY + 'px';
+    };
+
+    const pressTimer = setTimeout(startDrag, 180);
+
+    const onMove = (ev) => {
+      const dx = Math.abs(ev.clientX - startX);
+      const dy = Math.abs(ev.clientY - startY);
+
+      // si el usuario se mueve antes del long-press: era scroll
+      if (!dragging && (dx > 8 || dy > 8)) {
+        clearTimeout(pressTimer);
+        cleanup(false);
+        return;
+      }
+
+      if (!dragging) return;
+      ev.preventDefault();
+
+      item.style.left = ev.clientX + 'px';
+      item.style.top = ev.clientY + 'px';
+    };
+
+    const onUp = (ev) => {
+      clearTimeout(pressTimer);
+
+      if (!dragging) {
+        cleanup(false);
+        return;
+      }
+
+      const targets = Array.from(document.querySelectorAll(dropTargetsSelector));
+      const droppedSection = this.findDropTargetByIntersection(item, targets);
+
+      cleanup(true);
+
+      if (droppedSection) {
+        this.processFoodDrop(droppedSection, item);
+      } else {
+        this.showFeedback('❌ Suelta dentro de una sección del plato', 'error');
+      }
+
+      this.draggedElement = null;
+    };
+
+    const cleanup = (wasDragging) => {
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+
+      if (wasDragging) {
+        item.classList.remove('dragging-touch');
+        item.style.position = '';
+        item.style.left = '';
+        item.style.top = '';
+        item.style.zIndex = '';
+        item.style.pointerEvents = '';
+        item.style.transform = '';
+        document.body.style.overflow = prevOverflow;
+      }
+    };
+
+    document.addEventListener('pointermove', onMove, { passive: false });
+    document.addEventListener('pointerup', onUp, { passive: false });
+  }, { passive: true });
+}
+
+// ✅ helper para detectar a qué sección lo soltó (por intersección)
+findDropTargetByIntersection(dragEl, targets) {
+  const r1 = dragEl.getBoundingClientRect();
+  let best = null;
+  let bestArea = 0;
+
+  targets.forEach(t => {
+    const r2 = t.getBoundingClientRect();
+    const x = Math.max(0, Math.min(r1.right, r2.right) - Math.max(r1.left, r2.left));
+    const y = Math.max(0, Math.min(r1.bottom, r2.bottom) - Math.max(r1.top, r2.top));
+    const area = x * y;
+
+    if (area > bestArea) {
+      bestArea = area;
+      best = t;
     }
-    
-    verifyPlate() {
-        if (this.plateScore >= 1200) {
-            this.addScore(this.plateScore);
-            this.showFeedback('✅ ¡Plato saludable perfecto!', 'success');
-            this.completeDietPhase();
-        } else {
-            this.showFeedback('⚠️ Mejora tu plato con más alimentos saludables', 'warning');
-        }
-    }
-    
-    completeDietPhase() {
-        if (this.phaseProgress.diet.perfect) {
-            this.unlockAchievement('nutrition_guru');
-            this.addScore(800);
-        }
-        setTimeout(() => {
-            this.showPhase('symptoms');
-            this.initSymptomsPhase();
-        }, 1500);
-    }
+  });
+
+  return bestArea > 10 ? best : null;
+}
+
+updatePlateScore() {
+  const maxScore = 100 * 15; // 15 alimentos máximo
+  const percentage = Math.min((this.plateScore / maxScore) * 100, 100);
+
+  const fill = document.getElementById('plate-score-fill');
+  const txt = document.getElementById('plate-score-text');
+
+  if (fill) fill.style.width = percentage + '%';
+  if (txt) txt.textContent = Math.round(percentage) + '/100';
+}
+
+verifyPlate() {
+  if (this.plateScore >= 1200) {
+    this.addScore(this.plateScore);
+    this.showFeedback('✅ ¡Plato saludable perfecto!', 'success');
+    this.completeDietPhase();
+  } else {
+    this.showFeedback('⚠️ Mejora tu plato con más alimentos saludables', 'warning');
+  }
+}
+
+completeDietPhase() {
+  if (this.phaseProgress.diet.perfect) {
+    this.unlockAchievement?.('nutrition_guru');
+    this.addScore(800);
+  }
+
+  setTimeout(() => {
+    this.showPhase('symptoms');
+    this.initSymptomsPhase();
+  }, 1500);
+}
+
     
     // ============================================
     // FASE 5: SÍNTOMAS CHECKER

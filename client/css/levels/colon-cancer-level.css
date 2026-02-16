@@ -53,6 +53,25 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
 }
+.risk-item{
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.risk-item.dragging-touch{
+  position: fixed;
+  z-index: 999999;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+.food-item.dragging-touch{
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
 
 /* ============================================
    HEADER

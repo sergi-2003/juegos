@@ -18,6 +18,7 @@ const authRoutes = require('./routes/auth');
 const scoreRoutes = require('./routes/scores');
 
 const app = express();
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3000;
 
 // ============================================

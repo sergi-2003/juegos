@@ -412,7 +412,7 @@ const COLON_DATA = {
             familyHistory: false,
             correctAction: "screening",
             urgencyLevel: "medium",
-            explanation: "Edad para iniciar screening, síntomas leves",
+            explanation: "Edad para iniciar tamizaje, síntomas leves",
             points: 200
         },
         {

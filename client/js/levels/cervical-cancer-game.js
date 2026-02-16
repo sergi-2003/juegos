@@ -13,8 +13,9 @@ class CervicalCancerGame {
     this.lives = 3;
 
     // ✅ Tiempo total del nivel (10 minutos)
-    this.TOTAL_TIME = 10 * 60; // 600s
-    this.gameTime = this.TOTAL_TIME;
+ this.TOTAL_TIME = GAME_CONFIG.totalTime; // ✅ usa config
+this.gameTime = this.TOTAL_TIME;
+
 
     this.isPaused = false;
     this.timer = null;

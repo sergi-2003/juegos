@@ -214,7 +214,7 @@
                 <h2>⚠️ Identificador de Síntomas</h2>
                 <p>Reconoce las señales de alarma del cáncer de colon</p>
                 <div class="progress-badge">
-                    <span id="symptoms-progress">0/10</span>
+                    <span id="symptoms-progress">1/10</span>
                 </div>
             </div>
             <div class="symptoms-container">
@@ -247,64 +247,6 @@
             </div>
         </section>
 
-        <!-- FASE 7: Calendario de Screening -->
-        <section id="screening-phase" class="game-phase">
-            <div class="phase-header">
-                <h2>📅 Calendario de Tamizaje Personalizado</h2>
-                <p>Programa las colonoscopías según edad y factores de riesgo</p>
-            </div>
-            <div class="screening-container">
-                <div class="patient-profile">
-                    <h3>Perfil del Paciente</h3>
-                    <div id="screening-patient-info"></div>
-                </div>
-                <div class="screening-options">
-                    <div class="option-group">
-                        <label>Primera colonoscopía:</label>
-                        <select id="first-screening">
-                            <option value="">Seleccionar...</option>
-                            <option value="ahora">Ahora (inmediato)</option>
-                            <option value="45">A los 45 años</option>
-                            <option value="50">A los 50 años</option>
-                            <option value="no-necesario">No necesario aún</option>
-                        </select>
-                    </div>
-                    <div class="option-group">
-                        <label>Frecuencia de seguimiento:</label>
-                        <select id="screening-frequency">
-                            <option value="">Seleccionar...</option>
-                            <option value="1-año">Cada año</option>
-                            <option value="3-años">Cada 3 años</option>
-                            <option value="5-años">Cada 5 años</option>
-                            <option value="10-años">Cada 10 años</option>
-                        </select>
-                    </div>
-                    <div class="option-group">
-                        <label>Pruebas adicionales:</label>
-                        <select id="additional-tests">
-                            <option value="">Seleccionar...</option>
-                            <option value="sangre-oculta">Test de sangre oculta anual</option>
-                            <option value="sigmoidoscopia">Sigmoidoscopia cada 5 años</option>
-                            <option value="colonoscopia-virtual">Colonoscopía virtual</option>
-                            <option value="ninguna">Ninguna adicional</option>
-                        </select>
-                    </div>
-                    <div class="option-group">
-                        <label>Seguimiento especial:</label>
-                        <select id="special-monitoring">
-                            <option value="">Seleccionar...</option>
-                            <option value="alto-riesgo">Alto riesgo (anual)</option>
-                            <option value="historial-familiar">Con historial familiar</option>
-                            <option value="polipos-previos">Pólipos previos</option>
-                            <option value="estandar">Seguimiento estándar</option>
-                        </select>
-                    </div>
-                </div>
-                <button id="verify-screening" class="primary-btn">
-                    <i class="fas fa-check-circle"></i> Verificar Plan
-                </button>
-            </div>
-        </section>
 
         <!-- Pantalla de Victoria -->
         <section id="victory-screen" class="game-phase victory-screen">
@@ -356,6 +298,8 @@
     </main>
 
     <!-- Scripts -->
+     <script src="js/auth.js"></script>
+     <script src="js/animations.js"></script>
     <script src="js/levels/colon-cancer-data.js"></script>
     <script src="js/levels/colon-cancer-game.js"></script>
 </body>

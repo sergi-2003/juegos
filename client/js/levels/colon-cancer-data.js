@@ -98,7 +98,7 @@ const COLON_DATA = {
         },
         {
             id: "risk6",
-            name: "No hacerse screening",
+            name: "No hacerse Tamizaje",
             type: "danger",
             icon: "❌",
             explanation: "Detección tardía reduce supervivencia",
@@ -458,7 +458,7 @@ const COLON_DATA = {
             symptoms: ["Ninguno"],
             duration: "N/A",
             familyHistory: false,
-            correctAction: "screening",
+            correctAction: "normal",
             urgencyLevel: "medium",
             explanation: "Edad para colonoscopía de screening preventivo",
             points: 200
@@ -513,51 +513,6 @@ const COLON_DATA = {
         }
     ],
 
-    // Escenarios de screening
-    screeningScenarios: [
-        {
-            id: 1,
-            age: 45,
-            familyHistory: false,
-            previousPolyps: false,
-            riskFactors: [],
-            correctSchedule: {
-                firstScreening: "ahora",
-                frequency: "10-años",
-                additionalTests: "ninguna",
-                specialMonitoring: "estandar"
-            },
-            points: 300
-        },
-        {
-            id: 2,
-            age: 40,
-            familyHistory: true,
-            previousPolyps: false,
-            riskFactors: ["historial-familiar"],
-            correctSchedule: {
-                firstScreening: "ahora",
-                frequency: "5-años",
-                additionalTests: "sangre-oculta",
-                specialMonitoring: "historial-familiar"
-            },
-            points: 400
-        },
-        {
-            id: 3,
-            age: 52,
-            familyHistory: false,
-            previousPolyps: true,
-            riskFactors: ["polipos-previos"],
-            correctSchedule: {
-                firstScreening: "ahora",
-                frequency: "3-años",
-                additionalTests: "colonoscopia-virtual",
-                specialMonitoring: "polipos-previos"
-            },
-            points: 400
-        }
-    ],
 
     // Logros desbloqueables
     achievements: [

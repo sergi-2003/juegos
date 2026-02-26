@@ -7,17 +7,17 @@ class AuthManager {
         this.authClient = window.authClient;
         this.init();
     }
-    
+
     init() {
         this.bindFormEvents();
         this.bindAuthButtons();
         this.setupAuthStateListener();
         this.setupUserDataListener();
-        
+
         // Verificar estado de autenticación al cargar
         this.updateUIBasedOnAuthState();
     }
-    
+
     setupUserDataListener() {
         // Escuchar actualizaciones de datos de usuario
         window.addEventListener('userDataUpdated', (event) => {
@@ -25,7 +25,7 @@ class AuthManager {
             this.updateUserInfo(event.detail);
         });
     }
-    
+
     bindFormEvents() {
         // Formulario de registro
         const registerForm = document.getElementById('register-form');
@@ -35,7 +35,7 @@ class AuthManager {
                 this.handleRegister();
             });
         }
-        
+
         // Formulario de login
         const loginForm = document.getElementById('login-form');
         if (loginForm) {
@@ -45,7 +45,7 @@ class AuthManager {
             });
         }
     }
-    
+
     bindAuthButtons() {
         // Botón de registro
         const registerBtn = document.getElementById('btn-register');
@@ -58,14 +58,14 @@ class AuthManager {
                 }
             });
         }
-        
+
         // Botón de login
         const loginBtn = document.getElementById('btn-login');
         if (loginBtn) {
             loginBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                
+
                 if (this.authClient.isAuthenticated()) {
                     // Usuario autenticado - SOLO mostrar perfil
                     this.showUserProfile();
@@ -75,7 +75,7 @@ class AuthManager {
                 }
             });
         }
-        
+
         // Botones de cerrar modal
         document.querySelectorAll('.close-modal').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -84,77 +84,218 @@ class AuthManager {
             });
         });
     }
-    
+
     setupAuthStateListener() {
         // Configurar callback para cambios de autenticación
         this.authClient.setAuthChangeCallback((isAuthenticated, user) => {
             this.updateUIBasedOnAuthState();
-            
+
             if (isAuthenticated) {
                 this.showWelcomeNotification(user);
+                // ✅ Si quedó logueado, revisar si es admin y cargar panel
+                this.checkIfAdminAndLoad();
             }
         });
     }
-    
+
+    // ==========================================================
+    // ✅ ADMIN: Mostrar panel y cargar tablas users y game_scores
+    // ==========================================================
+    async checkIfAdminAndLoad() {
+        const token = localStorage.getItem('accessToken');
+        if (!token) return;
+
+        try {
+            const me = await fetch('/api/auth/verify', {
+                headers: { Authorization: `Bearer ${token}` }
+            }).then(r => r.json());
+
+            const adminSection = document.getElementById('admin-section');
+
+            if (me?.user?.role === 'admin') {
+                if (adminSection) adminSection.classList.remove('hidden');
+
+                this.setupAdminTabs();
+                await this.loadAdminDashboard(token);
+                await this.loadAdminUsers(token);
+                await this.loadAdminScores(token);
+            } else {
+                // Si NO es admin, ocultar panel
+                if (adminSection) adminSection.classList.add('hidden');
+            }
+        } catch (err) {
+            console.error('❌ Error verificando admin:', err);
+        }
+    }
+
+    setupAdminTabs() {
+        const tabs = document.querySelectorAll('.admin-tab');
+
+        tabs.forEach(btn => {
+            // Evitar duplicar listeners
+            if (btn.dataset.bound === '1') return;
+            btn.dataset.bound = '1';
+
+            btn.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                btn.classList.add('active');
+
+                const tabId = btn.dataset.tab;
+                document.querySelectorAll('.admin-tab-panel').forEach(p => p.classList.add('hidden'));
+                const panel = document.getElementById(tabId);
+                if (panel) panel.classList.remove('hidden');
+            });
+        });
+
+        const btnUsers = document.getElementById('admin-users-reload');
+        const btnScores = document.getElementById('admin-scores-reload');
+
+        if (btnUsers && btnUsers.dataset.bound !== '1') {
+            btnUsers.dataset.bound = '1';
+            btnUsers.addEventListener('click', () => this.loadAdminUsers(localStorage.getItem('accessToken')));
+        }
+
+        if (btnScores && btnScores.dataset.bound !== '1') {
+            btnScores.dataset.bound = '1';
+            btnScores.addEventListener('click', () => this.loadAdminScores(localStorage.getItem('accessToken')));
+        }
+    }
+
+    async loadAdminDashboard(token) {
+        const dash = await fetch('/api/admin/dashboard', {
+            headers: { Authorization: `Bearer ${token}` }
+        }).then(r => r.json());
+
+        const elUsers = document.getElementById('admin-total-users');
+        const elGames = document.getElementById('admin-total-games');
+        const elAt = document.getElementById('admin-generated-at');
+
+        if (elUsers) elUsers.textContent = dash?.totals?.total_users ?? 0;
+        if (elGames) elGames.textContent = dash?.totals?.total_games ?? 0;
+        if (elAt) elAt.textContent = dash?.generated_at ? ('Actualizado: ' + dash.generated_at) : '';
+    }
+
+    async loadAdminUsers(token) {
+        const body = document.getElementById('admin-users-body');
+        if (!body) return;
+
+        body.innerHTML = `<tr><td colspan="10" class="muted">Cargando...</td></tr>`;
+
+        const data = await fetch('/api/admin/users?limit=50&offset=0', {
+            headers: { Authorization: `Bearer ${token}` }
+        }).then(r => r.json());
+
+        const rows = data?.rows || [];
+        if (!rows.length) {
+            body.innerHTML = `<tr><td colspan="10" class="muted">Sin datos</td></tr>`;
+            return;
+        }
+
+        body.innerHTML = rows.map(u => `
+            <tr>
+                <td>${u.id}</td>
+                <td>${u.username ?? ''}</td>
+                <td>${u.email ?? ''}</td>
+                <td>${u.full_name ?? ''}</td>
+                <td>${u.role ?? ''}</td>
+                <td>${u.total_score ?? 0}</td>
+                <td>${u.games_played ?? 0}</td>
+                <td>${u.levels_completed ?? 0}</td>
+                <td>${u.is_active ? '✅' : '❌'}</td>
+                <td>${u.created_at ?? ''}</td>
+            </tr>
+        `).join('');
+    }
+
+    async loadAdminScores(token) {
+        const body = document.getElementById('admin-scores-body');
+        if (!body) return;
+
+        body.innerHTML = `<tr><td colspan="9" class="muted">Cargando...</td></tr>`;
+
+        const data = await fetch('/api/admin/game-scores?limit=50&offset=0', {
+            headers: { Authorization: `Bearer ${token}` }
+        }).then(r => r.json());
+
+        const rows = data?.rows || [];
+        if (!rows.length) {
+            body.innerHTML = `<tr><td colspan="9" class="muted">Sin datos</td></tr>`;
+            return;
+        }
+
+        body.innerHTML = rows.map(s => `
+            <tr>
+                <td>${s.id}</td>
+                <td>${s.user_id}</td>
+                <td>${s.level_type ?? ''}</td>
+                <td>${s.score ?? 0}</td>
+                <td>${s.time_taken ?? 0}</td>
+                <td>${s.anomalies_found ?? 0}</td>
+                <td>${s.total_anomalies ?? 0}</td>
+                <td>${Number(s.accuracy_percentage ?? 0).toFixed(2)}</td>
+                <td>${s.completed_at ?? ''}</td>
+            </tr>
+        `).join('');
+    }
+
+    // ==========================================
+    // REGISTER
+    // ==========================================
     async handleRegister() {
         try {
             this.showLoading('Creando tu cuenta de héroe...');
-            
+
             const formData = {
                 username: document.getElementById('register-username').value.trim(),
                 email: document.getElementById('register-email').value.trim(),
                 password: document.getElementById('register-password').value,
-                full_name: document.getElementById('register-username').value.trim() // Usar username como full_name por ahora
+                full_name: document.getElementById('register-username').value.trim()
             };
-            
-            // Validaciones básicas
+
             if (!this.validateRegistrationData(formData)) {
                 this.hideLoading();
                 return;
             }
-            
+
             const result = await this.authClient.register(formData);
-            
+
             this.hideLoading();
             this.hideModal('register-modal');
-            
+
             window.UIManager.showNotification(
                 `¡Bienvenido, ${result.user.username}! Tu cuenta ha sido creada exitosamente.`,
                 'success'
             );
-            
-            // Disparar evento de login inmediatamente tras registro
+
             window.dispatchEvent(new CustomEvent('user-logged-in', {
                 detail: { user: result.user }
             }));
-            
-            // Limpiar formulario
+
             document.getElementById('register-form').reset();
-            
+
+            // ✅ si se registra y queda logueado, revisar admin
+            this.checkIfAdminAndLoad();
+
         } catch (error) {
             this.hideLoading();
             console.error('Error en registro:', error);
-            
-            // Manejar errores específicos del servidor
             this.handleRegistrationError(error);
         }
     }
-    
+
     handleRegistrationError(error) {
         try {
-            // Intentar parsear el error como JSON si viene del servidor
             let errorData = null;
             if (error.responseText) {
                 errorData = JSON.parse(error.responseText);
             } else if (error.message && error.message.startsWith('{')) {
                 errorData = JSON.parse(error.message);
             }
-            
-            // Si tenemos detalles de validación específicos
+
             if (errorData && errorData.details && Array.isArray(errorData.details)) {
                 const validationErrors = errorData.details;
                 const passwordError = validationErrors.find(err => err.path === 'password');
-                
+
                 if (passwordError) {
                     window.UIManager.showNotification(
                         `🔐 Formato de contraseña incorrecto:\n\n` +
@@ -168,7 +309,7 @@ class AuthManager {
                     );
                     return;
                 }
-                
+
                 const usernameError = validationErrors.find(err => err.path === 'username');
                 if (usernameError) {
                     window.UIManager.showNotification(
@@ -181,7 +322,7 @@ class AuthManager {
                     );
                     return;
                 }
-                
+
                 const emailError = validationErrors.find(err => err.path === 'email');
                 if (emailError) {
                     window.UIManager.showNotification(
@@ -192,8 +333,7 @@ class AuthManager {
                     return;
                 }
             }
-            
-            // Errores específicos de duplicados
+
             if (error.message.includes('ya existe') || error.message.includes('already exists')) {
                 window.UIManager.showNotification(
                     `⚠️ Usuario ya registrado:\n\n` +
@@ -204,17 +344,15 @@ class AuthManager {
                 );
                 return;
             }
-            
-            // Error genérico
+
             window.UIManager.showNotification(
                 `❌ Error al crear cuenta:\n\n` +
                 `${error.message || 'Error desconocido'}\n\n` +
                 `Por favor, inténtalo de nuevo.`,
                 'error'
             );
-            
+
         } catch (parseError) {
-            // Si no podemos parsear el error, mostrar mensaje genérico
             console.error('Error parsing registration error:', parseError);
             window.UIManager.showNotification(
                 `❌ Error al crear cuenta:\n\n` +
@@ -224,82 +362,97 @@ class AuthManager {
             );
         }
     }
-    
+
+    // ==========================================
+    // LOGIN
+    // ==========================================
     async handleLogin() {
         try {
             this.showLoading('Iniciando sesión...');
-            
+
             const credentials = {
                 login: document.getElementById('login-email').value.trim(),
                 password: document.getElementById('login-password').value
             };
-            
+
             if (!credentials.login || !credentials.password) {
                 window.UIManager.showNotification('Por favor, completa todos los campos', 'warning');
                 this.hideLoading();
                 return;
             }
-            
+
             const result = await this.authClient.login(credentials);
-            
+
+            // ✅ Guardar tokens para que isAuthenticated() funcione
+if (result?.tokens?.access) {
+  localStorage.setItem('accessToken', result.tokens.access);
+}
+if (result?.tokens?.refresh) {
+  localStorage.setItem('refreshToken', result.tokens.refresh);
+}
+
+// ✅ Guardar user (opcional, pero ayuda)
+if (result?.user) {
+  localStorage.setItem('user', JSON.stringify(result.user));
+}
+
             this.hideLoading();
             this.hideModal('login-modal');
-            
+
             window.UIManager.showNotification(
                 `¡Bienvenido de vuelta, ${result.user.username}!`,
                 'success'
             );
-            
-            // Disparar evento de login inmediatamente
+
             window.dispatchEvent(new CustomEvent('user-logged-in', {
                 detail: { user: result.user }
             }));
-            
-            // Limpiar formulario
+
             document.getElementById('login-form').reset();
-            
+
+            // ✅ al loguear: revisar si es admin y cargar panel
+            await this.checkIfAdminAndLoad();
+
         } catch (error) {
             this.hideLoading();
             console.error('Error en login:', error);
-            
+
             let errorMessage = 'Error al iniciar sesión. ';
             if (error.message.includes('incorrectos') || error.message.includes('inválidas')) {
                 errorMessage += 'Credenciales incorrectas.';
             } else {
                 errorMessage += 'Por favor, inténtalo de nuevo.';
             }
-            
+
             window.UIManager.showNotification(errorMessage, 'error');
         }
     }
-    
+
     async handleLogout() {
         try {
-            // Cerrar modal de perfil primero
             this.hideProfileModal();
-            
-            // Cerrar TODOS los modales
+
             document.querySelectorAll('.modal').forEach(modal => {
                 modal.classList.remove('show');
                 modal.classList.add('hidden');
             });
-            
+
             await this.authClient.logout();
             window.UIManager.showNotification('Sesión cerrada correctamente', 'info');
-            
-            // Disparar evento de logout inmediatamente
+
             window.dispatchEvent(new CustomEvent('user-logged-out'));
-            
-            // Evitar que se abra cualquier modal después del logout
-            // No recargar la página, solo actualizar UI
+
+            // ✅ ocultar panel admin al salir
+            const adminSection = document.getElementById('admin-section');
+            if (adminSection) adminSection.classList.add('hidden');
+
         } catch (error) {
             console.error('Error en logout:', error);
             window.UIManager.showNotification('Error al cerrar sesión', 'error');
         }
     }
-    
+
     validateRegistrationData(data) {
-        // Validar username
         if (data.username.length < 3) {
             window.UIManager.showNotification(
                 `📝 Nombre de héroe muy corto:\n\n` +
@@ -310,7 +463,7 @@ class AuthManager {
             );
             return false;
         }
-        
+
         if (!/^[a-zA-Z0-9_]+$/.test(data.username)) {
             window.UIManager.showNotification(
                 `📝 Formato de nombre inválido:\n\n` +
@@ -323,8 +476,7 @@ class AuthManager {
             );
             return false;
         }
-        
-        // Validar email
+
         if (!this.isValidEmail(data.email)) {
             window.UIManager.showNotification(
                 `📧 Email inválido:\n\n` +
@@ -334,15 +486,14 @@ class AuthManager {
             );
             return false;
         }
-        
-        // Validar contraseña con criterios específicos
+
         if (!this.isValidPassword(data.password)) {
-            return false; // El método isValidPassword ya muestra el mensaje
+            return false;
         }
-        
+
         return true;
     }
-    
+
     isValidPassword(password) {
         if (password.length < 6) {
             window.UIManager.showNotification(
@@ -352,7 +503,7 @@ class AuthManager {
             );
             return false;
         }
-        
+
         if (!/(?=.*[a-z])/.test(password)) {
             window.UIManager.showNotification(
                 `🔐 Falta letra minúscula:\n\n` +
@@ -362,7 +513,7 @@ class AuthManager {
             );
             return false;
         }
-        
+
         if (!/(?=.*[A-Z])/.test(password)) {
             window.UIManager.showNotification(
                 `🔐 Falta letra mayúscula:\n\n` +
@@ -372,7 +523,7 @@ class AuthManager {
             );
             return false;
         }
-        
+
         if (!/(?=.*\d)/.test(password)) {
             window.UIManager.showNotification(
                 `🔐 Falta número:\n\n` +
@@ -382,52 +533,56 @@ class AuthManager {
             );
             return false;
         }
-        
+
         return true;
     }
-    
+
     isValidEmail(email) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
     }
-    
+
     updateUIBasedOnAuthState() {
         const isAuthenticated = this.authClient.isAuthenticated();
         const user = this.authClient.getUser();
-        
+
         const registerBtn = document.getElementById('btn-register');
         const loginBtn = document.getElementById('btn-login');
-        
+
         if (isAuthenticated && user) {
-            // Usuario autenticado
             if (registerBtn) {
                 registerBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i><span>Cerrar Sesión</span>';
             }
-            
+
             if (loginBtn) {
                 loginBtn.innerHTML = '<i class="fas fa-user"></i><span>Mi Perfil</span>';
             }
-            
+
             this.addUserInfoToHeader(user);
-            
+
+            // ✅ si ya está autenticado al cargar, revisar admin
+            this.checkIfAdminAndLoad();
+
         } else {
-            // Usuario no autenticado
             if (registerBtn) {
                 registerBtn.innerHTML = '<i class="fas fa-user-plus"></i><span>Unirse a la Causa</span>';
             }
-            
+
             if (loginBtn) {
                 loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i><span>Iniciar Sesión</span>';
             }
-            
+
             this.removeUserInfoFromHeader();
+
+            // Ocultar admin
+            const adminSection = document.getElementById('admin-section');
+            if (adminSection) adminSection.classList.add('hidden');
         }
     }
-    
+
     addUserInfoToHeader(user) {
-        // Remover info anterior si existe
         this.removeUserInfoFromHeader();
-        
+
         const healthStats = document.querySelector('.health-stats');
         if (healthStats) {
             const userInfo = document.createElement('div');
@@ -437,59 +592,41 @@ class AuthManager {
                     <i class="fas fa-user-circle"></i>
                 </div>
                 <div class="user-details">
-                        <span class="username" style="color:#078930;font-weight:600;">${user.username}</span>
-                        <span class="user-stats" style="color:#078930;">${user.total_score || 0} pts | Nivel ${Math.floor((user.total_score || 0) / 200) + 1}</span>
+                    <span class="username" style="color:#078930;font-weight:600;">${user.username}</span>
+                    <span class="user-stats" style="color:#078930;">${user.total_score || 0} pts | Nivel ${Math.floor((user.total_score || 0) / 200) + 1}</span>
                 </div>
             `;
-            
+
             healthStats.appendChild(userInfo);
             this.addUserHeaderStyles();
-            this.addLogoutButton(); // Agregar botón de logout
+            this.addLogoutButton();
         }
     }
-    
+
     removeUserInfoFromHeader() {
         const userInfo = document.querySelector('.user-info-header');
-        if (userInfo) {
-            userInfo.remove();
-        }
+        if (userInfo) userInfo.remove();
         this.removeLogoutButton();
     }
-    
+
     updateUserInfo(userData) {
-        // Actualizar información del usuario en el header si está presente
         const userStatsElement = document.querySelector('.user-stats');
         if (userStatsElement) {
             const level = Math.floor((userData.total_score || 0) / 200) + 1;
             userStatsElement.textContent = `${userData.total_score || 0} pts | Nivel ${level}`;
         }
-        
-        // Si hay un modal de perfil abierto, actualizarlo también
-        const profileModal = document.getElementById('profile-modal');
-        if (profileModal) {
-            const totalScoreElement = profileModal.querySelector('.total-score');
-            const levelElement = profileModal.querySelector('.user-level');
-            const gamesPlayedElement = profileModal.querySelector('.games-played');
-            
-            if (totalScoreElement) totalScoreElement.textContent = userData.total_score || 0;
-            if (levelElement) levelElement.textContent = Math.floor((userData.total_score || 0) / 200) + 1;
-            if (gamesPlayedElement) gamesPlayedElement.textContent = userData.games_played || 0;
-        }
-        
         console.log('🔄 Información de usuario actualizada en UI');
     }
-    
+
     showUserProfile() {
         const user = this.authClient.getUser();
         if (!user) return;
-        
-        // CERRAR TODOS LOS MODALES ANTES DE MOSTRAR PERFIL
+
         document.querySelectorAll('.modal').forEach(modal => {
             modal.classList.remove('show');
             modal.classList.add('hidden');
         });
-        
-        // Crear modal de perfil dinámicamente
+
         const profileModal = document.createElement('div');
         profileModal.id = 'profile-modal';
         profileModal.className = 'modal';
@@ -534,39 +671,31 @@ class AuthManager {
                 </div>
             </div>
         `;
-        
+
         document.body.appendChild(profileModal);
         this.addProfileStyles();
-        
-        // Event listener para cerrar al hacer clic fuera del modal
+
         profileModal.addEventListener('click', (e) => {
             if (e.target === profileModal) {
-                e.stopPropagation(); // IMPORTANTE: Detener la propagación del evento
+                e.stopPropagation();
                 this.hideProfileModal();
             }
         });
-        
-        // Mostrar modal
-        setTimeout(() => {
-            profileModal.classList.add('show');
-        }, 10);
+
+        setTimeout(() => profileModal.classList.add('show'), 10);
     }
-    
-    // Método para mostrar botón de logout en la interfaz principal
+
     addLogoutButton() {
-        // Buscar si ya existe un botón de logout
         let logoutBtn = document.getElementById('btn-logout-main');
-        
+
         if (!logoutBtn) {
-            // Crear botón de logout
             logoutBtn = document.createElement('button');
             logoutBtn.id = 'btn-logout-main';
             logoutBtn.className = 'btn-logout-header';
             logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i>';
             logoutBtn.title = 'Cerrar Sesión';
             logoutBtn.onclick = () => this.handleLogout();
-            
-            // Agregar el botón al header
+
             const userInfo = document.querySelector('.user-info-header');
             if (userInfo) {
                 userInfo.appendChild(logoutBtn);
@@ -574,31 +703,27 @@ class AuthManager {
             }
         }
     }
-    
+
     removeLogoutButton() {
         const logoutBtn = document.getElementById('btn-logout-main');
-        if (logoutBtn) {
-            logoutBtn.remove();
-        }
+        if (logoutBtn) logoutBtn.remove();
     }
-    
+
     hideProfileModal() {
         const modal = document.getElementById('profile-modal');
         if (modal) {
             modal.classList.remove('show');
-            setTimeout(() => {
-                modal.remove();
-            }, 300);
+            setTimeout(() => modal.remove(), 300);
         }
     }
-    
+
     showWelcomeNotification(user) {
         if (user) {
             const message = `¡Bienvenido, ${user.username}! Tu misión para salvar vidas comienza ahora.`;
             window.UIManager.showNotification(message, 'success', 7000);
         }
     }
-    
+
     showModal(modalId) {
         const modal = document.getElementById(modalId);
         if (modal) {
@@ -606,7 +731,7 @@ class AuthManager {
             modal.classList.add('show');
         }
     }
-    
+
     hideModal(modalId) {
         const modal = document.getElementById(modalId);
         if (modal) {
@@ -614,18 +739,18 @@ class AuthManager {
             modal.classList.remove('show');
         }
     }
-    
+
     showLoading(message = 'Cargando...') {
         window.UIManager.showLoading(message);
     }
-    
+
     hideLoading() {
         window.UIManager.hideLoading();
     }
-    
+
     addUserHeaderStyles() {
         if (document.getElementById('user-header-styles')) return;
-        
+
         const styles = document.createElement('style');
         styles.id = 'user-header-styles';
         styles.textContent = `
@@ -639,24 +764,20 @@ class AuthManager {
                 backdrop-filter: blur(10px);
                 border: 1px solid rgba(255,255,255,0.2);
             }
-            
             .user-info-header .user-avatar {
                 font-size: 24px;
                 color: #48cae4;
             }
-            
             .user-info-header .user-details {
                 display: flex;
                 flex-direction: column;
                 line-height: 1.2;
             }
-            
             .user-info-header .username {
                 font-weight: 600;
                 color: white;
                 font-size: 14px;
             }
-            
             .user-info-header .user-stats {
                 font-size: 12px;
                 color: rgba(255,255,255,0.8);
@@ -664,10 +785,10 @@ class AuthManager {
         `;
         document.head.appendChild(styles);
     }
-    
+
     addLogoutButtonStyles() {
         if (document.getElementById('logout-button-styles')) return;
-        
+
         const styles = document.createElement('style');
         styles.id = 'logout-button-styles';
         styles.textContent = `
@@ -686,7 +807,6 @@ class AuthManager {
                 font-size: 12px;
                 margin-left: 10px;
             }
-            
             .btn-logout-header:hover {
                 background: rgba(231, 76, 60, 1);
                 transform: scale(1.1);
@@ -694,10 +814,10 @@ class AuthManager {
         `;
         document.head.appendChild(styles);
     }
-    
+
     addProfileStyles() {
         if (document.getElementById('profile-modal-styles')) return;
-        
+
         const styles = document.createElement('style');
         styles.id = 'profile-modal-styles';
         styles.textContent = `
@@ -715,88 +835,7 @@ class AuthManager {
                 opacity: 0;
                 transition: opacity 0.3s ease;
             }
-            
-            #profile-modal.show {
-                opacity: 1;
-            }
-            
-            .profile-info {
-                text-align: center;
-                margin-bottom: 20px;
-            }
-            
-            .profile-avatar {
-                font-size: 60px;
-                color: #48cae4;
-                margin-bottom: 15px;
-            }
-            
-            .profile-details h4 {
-                margin-bottom: 5px;
-                color: #2d3436;
-            }
-            
-            .profile-details p {
-                color: #636e72;
-                margin-bottom: 20px;
-            }
-            
-            .profile-stats {
-                display: flex;
-                gap: 20px;
-                justify-content: center;
-                flex-wrap: wrap;
-            }
-            
-            .profile-stats .stat-item {
-                display: flex;
-                align-items: center;
-                gap: 5px;
-                padding: 8px 12px;
-                background: rgba(72,202,228,0.1);
-                border-radius: 15px;
-                font-size: 14px;
-            }
-            
-            .profile-stats .stat-item i {
-                color: #48cae4;
-            }
-            
-            .profile-actions {
-                text-align: center;
-                padding-top: 20px;
-                border-top: 1px solid #ddd;
-            }
-            
-            .btn-logout-profile {
-                background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-                color: white;
-                border: none;
-                padding: 14px 32px;
-                border-radius: 25px;
-                font-size: 16px;
-                font-weight: 600;
-                cursor: pointer;
-                display: inline-flex;
-                align-items: center;
-                gap: 10px;
-                transition: all 0.3s ease;
-                box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
-            }
-            
-            .btn-logout-profile:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
-                background: linear-gradient(135deg, #ee5a6f 0%, #ff6b6b 100%);
-            }
-            
-            .btn-logout-profile:active {
-                transform: translateY(0);
-            }
-            
-            .btn-logout-profile i {
-                font-size: 18px;
-            }
+            #profile-modal.show { opacity: 1; }
         `;
         document.head.appendChild(styles);
     }
@@ -804,7 +843,6 @@ class AuthManager {
 
 // Inicializar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
-    // Esperar a que authClient esté disponible
     const initAuthManager = () => {
         if (window.authClient && window.UIManager) {
             window.authManager = new AuthManager();
@@ -813,6 +851,6 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(initAuthManager, 100);
         }
     };
-    
+
     initAuthManager();
 });

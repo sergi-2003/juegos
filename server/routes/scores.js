@@ -13,7 +13,7 @@ const router = express.Router();
 // Validaciones para enviar puntuación
 const scoreValidation = [
     body('level_type')
-        .isIn(['mama', 'prostata', 'cervical', 'pulmon'])
+        .isIn(['mama', 'prostata', 'cervical', 'colon'])
         .withMessage('Tipo de nivel inválido'),
     body('score')
         .isInt({ min: 0, max: 100000 })
@@ -136,7 +136,7 @@ router.get('/leaderboard', optionalAuth, async (req, res) => {
         const level_type = req.query.level_type;
 
         let scores;
-        if (level_type && ['mama', 'prostata', 'cervical', 'pulmon'].includes(level_type)) {
+        if (level_type && ['mama', 'prostata', 'cervical', 'colon'].includes(level_type)) {
             scores = await GameScore.getByLevel(level_type, limit);
         } else {
             // Usar el nuevo método para el leaderboard global
@@ -214,10 +214,10 @@ router.get('/best/:level_type', authenticateToken, async (req, res) => {
     try {
         const { level_type } = req.params;
 
-        if (!['mama', 'prostata', 'cervical', 'pulmon'].includes(level_type)) {
+        if (!['mama', 'prostata', 'cervical', 'colon'].includes(level_type)) {
             return res.status(400).json({
                 error: 'Tipo de nivel inválido',
-                message: 'Los tipos válidos son: mama, prostata, cervical, pulmon'
+                message: 'Los tipos válidos son: mama, prostata, cervical, colon'
             });
         }
 

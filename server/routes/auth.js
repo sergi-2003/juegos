@@ -75,6 +75,8 @@ const resetValidation = [
     .withMessage('La contraseña debe tener al menos 6 caracteres, una mayúscula, una minúscula y un número')
 ];
 
+
+
 // ============================================
 // REGISTRO DE USUARIO
 // ============================================
@@ -101,8 +103,8 @@ router.post('/register', registerValidation, async (req, res) => {
     });
 
     // Generar tokens (access + refresh)
-    const accessToken = generateToken(user.id, user.username, 'access');
-    const refreshToken = generateToken(user.id, user.username, 'refresh');
+    const accessToken  = generateToken(user.id, user.username, user.role, 'access');
+const refreshToken = generateToken(user.id, user.username, user.role, 'refresh');
 
     // Actualizar último login
     await user.updateLastLogin();
@@ -158,6 +160,7 @@ router.post('/login', loginValidation, async (req, res) => {
     } else {
       user = await User.findByUsername(login);
     }
+    
 
     if (!user) {
       return res.status(401).json({
@@ -175,10 +178,11 @@ router.post('/login', loginValidation, async (req, res) => {
       });
     }
 
-    // Generar tokens (access + refresh)
-    const accessToken = generateToken(user.id, user.username, 'access');
-    const refreshToken = generateToken(user.id, user.username, 'refresh');
+    
 
+    // Generar tokens (access + refresh)
+  const accessToken  = generateToken(user.id, user.username, user.role, 'access');
+const refreshToken = generateToken(user.id, user.username, user.role, 'refresh');
     // Actualizar último login
     await user.updateLastLogin();
 
@@ -361,7 +365,7 @@ router.post('/refresh', async (req, res) => {
     }
 
     // Generar nuevo token de acceso
-    const accessToken = generateToken(user.id, user.username, 'access');
+     const accessToken = generateToken(user.id, user.username, user.role, 'access');
 
     res.json({
       message: 'Token renovado exitosamente',
@@ -379,6 +383,7 @@ router.post('/refresh', async (req, res) => {
     });
   }
 });
+
 
 // ============================================
 // VERIFICAR TOKEN
@@ -401,6 +406,7 @@ router.get('/verify', authenticateToken, async (req, res) => {
         username: user.username,
         email: user.email,
         full_name: user.full_name,
+        role: user.role,
         avatar_url: user.avatar_url,
         created_at: user.created_at,
         updated_at: user.updated_at,

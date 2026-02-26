@@ -154,17 +154,70 @@ this.gameTime = this.TOTAL_TIME;
   }
 
   // ---------- MOBILE (Timeline) ----------
-  handlePointerDownTimeline(e) {
-    if (e.pointerType === 'mouse') return;
+/*handlePointerDownTimeline(e) {
+  if (e.pointerType === 'mouse') return;
+
+  const card = e.currentTarget;
+  if (card.classList.contains('correct') || card.draggable === false) return;
+
+  // ahora sí: al tocar tarjeta, es drag
+  e.preventDefault();
+
+  this.draggedElement = card;
+  card._dragStarted = true;
+
+  // failsafe
+  this._onDocCancel = () => this.forceCancelDrag();
+  document.addEventListener('pointercancel', this._onDocCancel, { passive: true });
+  document.addEventListener('lostpointercapture', this._onDocCancel, { passive: true });
+  window.addEventListener('blur', this._onDocCancel, { passive: true });
+  document.addEventListener('visibilitychange', this._onDocCancel, { passive: true });
+
+  const rect = card.getBoundingClientRect();
+  card.classList.add('dragging');
+
+  card.style.position = 'fixed';
+  card.style.left = rect.left + 'px';
+  card.style.top = rect.top + 'px';
+  card.style.width = rect.width + 'px';
+  card.style.zIndex = 9999;
+  card.style.pointerEvents = 'none';
+
+  card.dataset.offsetX = String(e.clientX - rect.left);
+  card.dataset.offsetY = String(e.clientY - rect.top);
+
+  card.setPointerCapture?.(e.pointerId);
+  document.body.classList.add('dragging-active');
+
+  this._onTimelineMove = (ev) => this.handlePointerMoveTimeline(ev);
+  this._onTimelineUp = (ev) => this.handlePointerUpTimeline(ev);
+
+  // MUY importante: mover/up en window para no perder eventos
+  window.addEventListener('pointermove', this._onTimelineMove, { passive: false });
+  window.addEventListener('pointerup', this._onTimelineUp, { passive: false });
+  window.addEventListener('pointercancel', this._onTimelineUp, { passive: false });
+}
+
+
+handlePointerMoveTimeline(e) {
+  const card = this.draggedElement;
+  if (!card) return;
+
+  const dx = e.clientX - (card._startX || 0);
+  const dy = e.clientY - (card._startY || 0);
+  const threshold = 10;
+
+  // aún no empezó drag -> decide si activarlo
+  if (!card._dragStarted) {
+    if (Math.hypot(dx, dy) < threshold) return;
+
+    // arrancamos drag real
+    card._dragStarted = true;
     e.preventDefault();
 
-    const card = e.currentTarget;
-    if (card.classList.contains('correct') || card.draggable === false) return;
-
-    this.draggedElement = card;
+    const rect = card.getBoundingClientRect();
     card.classList.add('dragging');
 
-    const rect = card.getBoundingClientRect();
     card.style.position = 'fixed';
     card.style.left = rect.left + 'px';
     card.style.top = rect.top + 'px';
@@ -175,88 +228,172 @@ this.gameTime = this.TOTAL_TIME;
     card.dataset.offsetX = String(e.clientX - rect.left);
     card.dataset.offsetY = String(e.clientY - rect.top);
 
-    card.setPointerCapture(e.pointerId);
-
-    this._onTimelineMove = (ev) => this.handlePointerMoveTimeline(ev);
-    this._onTimelineUp = (ev) => this.handlePointerUpTimeline(ev);
-
-    card.addEventListener('pointermove', this._onTimelineMove);
-    card.addEventListener('pointerup', this._onTimelineUp);
-    card.addEventListener('pointercancel', this._onTimelineUp);
+    card.setPointerCapture?.(e.pointerId);
+    document.body.classList.add('dragging-active');
   }
 
-  handlePointerMoveTimeline(e) {
-    if (!this.draggedElement) return;
+  // ya en drag: mover
+  if (card._dragStarted) {
     e.preventDefault();
-
-    const card = this.draggedElement;
     const ox = parseFloat(card.dataset.offsetX || '0');
     const oy = parseFloat(card.dataset.offsetY || '0');
+    card.style.left = (e.clientX - ox) + 'px';
+    card.style.top = (e.clientY - oy) + 'px';
+  }
+}
 
-    card.style.left = e.clientX - ox + 'px';
-    card.style.top = e.clientY - oy + 'px';
+handlePointerUpTimeline(e) {
+  const card = this.draggedElement;
+  if (!card) return;
+
+  e.preventDefault();
+
+  window.removeEventListener('pointermove', this._onTimelineMove);
+  window.removeEventListener('pointerup', this._onTimelineUp);
+  window.removeEventListener('pointercancel', this._onTimelineUp);
+
+  // limpia failsafes
+  if (this._onDocCancel) {
+    document.removeEventListener('pointercancel', this._onDocCancel);
+    document.removeEventListener('lostpointercapture', this._onDocCancel);
+    window.removeEventListener('blur', this._onDocCancel);
+    document.removeEventListener('visibilitychange', this._onDocCancel);
+    this._onDocCancel = null;
   }
 
-  handlePointerUpTimeline(e) {
-    if (!this.draggedElement) return;
-    e.preventDefault();
+  card.releasePointerCapture?.(e.pointerId);
+  document.body.classList.remove('dragging-active');
 
-    const card = this.draggedElement;
+  const el = document.elementFromPoint(e.clientX, e.clientY);
+  const marker = el?.closest('.age-marker');
 
-    card.removeEventListener('pointermove', this._onTimelineMove);
-    card.removeEventListener('pointerup', this._onTimelineUp);
-    card.removeEventListener('pointercancel', this._onTimelineUp);
-
-    const el = document.elementFromPoint(e.clientX, e.clientY);
-    const marker = el?.closest('.age-marker');
-
-    if (marker) {
-      const age = parseInt(marker.dataset.age || '0', 10);
-      this.handleTimelineDrop({ preventDefault() {}, currentTarget: marker, target: marker }, age);
-    }
-
-    // si no quedó correcto, reset
-    if (!card.classList.contains('correct')) this.resetDraggedStyles(card);
-
-    this.draggedElement = null;
+  if (marker) {
+    const age = parseInt(marker.dataset.age || '0', 10);
+    this.handleTimelineDrop({ preventDefault() {}, currentTarget: marker, target: marker }, age);
   }
+
+  if (!card.classList.contains('correct')) this.resetDraggedStyles(card);
+  else this.resetDraggedStyles(card);
+
+  this.draggedElement = null;
+}
+
+
+
+  forceCancelDrag() {
+  const el = this.draggedElement;
+  document.body.classList.remove('dragging-active');
+
+  if (el) {
+    this.resetDraggedStyles(el);
+    el._dragStarted = false;
+    el._startX = 0;
+    el._startY = 0;
+  }
+
+  this.draggedElement = null;
+
+  document.removeEventListener('pointercancel', this._onDocCancel);
+document.removeEventListener('lostpointercapture', this._onDocCancel);
+document.removeEventListener('visibilitychange', this._onDocCancel);
+this._onDocCancel = null;
+
+}
+*/
 
   createVaccinationCards() {
-    const container = document.getElementById('vaccination-cards');
-    if (!container) return;
+  const container = document.getElementById('vaccination-cards');
+  if (!container) return;
 
-    container.innerHTML = '';
+  container.innerHTML = '';
 
-    const shuffled = [...CERVICAL_DATA.vaccinationTimeline].sort(() => Math.random() - 0.5);
+  const shuffled = [...CERVICAL_DATA.vaccinationTimeline].sort(() => Math.random() - 0.5);
 
-    shuffled.forEach((card) => {
-      const cardEl = document.createElement('div');
-      cardEl.className = 'vaccination-card';
-      cardEl.draggable = true;
-      cardEl.dataset.id = String(card.id);
-      cardEl.dataset.correctAge = String(card.correctAge);
+  shuffled.forEach((card) => {
+    const cardEl = document.createElement('div');
+    cardEl.className = 'vaccination-card';
+    cardEl.draggable = false; // ✅ NO drag
+    cardEl.dataset.id = String(card.id);
+    cardEl.dataset.correctAge = String(card.correctAge);
 
-      cardEl.innerHTML = `
-        <div class="card-icon">💉</div>
-        <div class="card-content">
-          <h4>${card.description}</h4>
-          <p class="age-hint">${card.ageRange}</p>
-        </div>
-      `;
+    cardEl.innerHTML = `
+      <div class="card-icon">💉</div>
+      <div class="card-content">
+        <h4>${card.description}</h4>
+        <p class="age-hint">${card.ageRange}</p>
+      </div>
+    `;
 
-      // Desktop (drag nativo)
-      cardEl.addEventListener('dragstart', (e) => this.handleDragStart(e));
-      cardEl.addEventListener('dragend', (e) => this.handleDragEnd(e));
+    // ✅ click/tap para seleccionar
+    cardEl.addEventListener('click', () => this.handleTimelineCardSelect(cardEl));
 
-      // Mobile (iOS/Android): pointer drag
-      if (navigator.maxTouchPoints > 0) {
-        cardEl.addEventListener('pointerdown', (e) => this.handlePointerDownTimeline(e));
-      }
+    container.appendChild(cardEl);
+  });
+}
 
-      container.appendChild(cardEl);
-    });
+
+  createAgeMarkers() {
+  const container = document.getElementById('age-markers');
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  for (let age = 5; age <= 30; age += 1) {
+    const marker = document.createElement('div');
+    marker.className = 'age-marker';
+    marker.dataset.age = String(age);
+
+    marker.innerHTML = `
+      <div class="marker-line"></div>
+      ${age % 5 === 0 ? `<span class="age-label">${age}</span>` : ''}
+    `;
+
+    // ✅ click/tap para colocar
+    marker.addEventListener('click', () => this.handleTimelineMarkerSelect(age, marker));
+
+    container.appendChild(marker);
+  }
+}
+
+handleTimelineCardSelect(cardEl) {
+  if (cardEl.classList.contains('correct')) return;
+
+  // toggle
+  if (this.selectedTimelineCard === cardEl) {
+    cardEl.classList.remove('selected');
+    this.selectedTimelineCard = null;
+    return;
   }
 
+  // quitar selección anterior
+  if (this.selectedTimelineCard) {
+    this.selectedTimelineCard.classList.remove('selected');
+  }
+
+  this.selectedTimelineCard = cardEl;
+  cardEl.classList.add('selected');
+}
+
+handleTimelineMarkerSelect(age, markerEl) {
+  const card = this.selectedTimelineCard;
+  if (!card) return;
+
+  // usar tu misma validación:
+  this.draggedElement = card;
+  this.handleTimelineDrop(
+    { preventDefault() {}, currentTarget: markerEl, target: markerEl },
+    age
+  );
+
+  // limpiar selección
+  if (this.selectedTimelineCard) {
+    this.selectedTimelineCard.classList.remove('selected');
+    this.selectedTimelineCard = null;
+  }
+}
+
+
+/*
   handleDragStart(e) {
     this.draggedElement = e.currentTarget;
     this.draggedElement.classList.add('dragging');
@@ -274,7 +411,7 @@ this.gameTime = this.TOTAL_TIME;
     e.preventDefault();
     if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
   }
-
+*/
   handleTimelineDrop(e, age) {
     e.preventDefault();
     if (!this.draggedElement) return;
@@ -300,7 +437,7 @@ this.gameTime = this.TOTAL_TIME;
       marker.appendChild(this.draggedElement);
 
       // ⚠️ Si quieres posicionarlo arriba del marcador:
-      this.draggedElement.style.position = 'absolute';
+      //this.draggedElement.style.position = 'absolute';
       this.draggedElement.style.top = '-80px';
 
       if (this.phaseProgress.timeline.completed === this.phaseProgress.timeline.total) {
@@ -417,48 +554,89 @@ this.gameTime = this.TOTAL_TIME;
   }
 
   createRiskItems() {
-    const container = document.getElementById('risk-items');
-    if (!container) return;
+  const container = document.getElementById('risk-items');
+  if (!container) return;
 
-    container.innerHTML = '';
+  container.innerHTML = '';
 
-    const shuffled = [...CERVICAL_DATA.riskFactors].sort(() => Math.random() - 0.5);
+  const shuffled = [...CERVICAL_DATA.riskFactors]
+    .sort(() => Math.random() - 0.5);
 
-    shuffled.forEach((item) => {
-      const itemEl = document.createElement('div');
-      itemEl.className = 'risk-item';
-      itemEl.draggable = true;
-      itemEl.dataset.id = String(item.id);
-      itemEl.dataset.type = String(item.type);
+  shuffled.forEach((item) => {
+    const itemEl = document.createElement('div');
+    itemEl.className = 'risk-item';
+    itemEl.dataset.id = String(item.id);
+    itemEl.dataset.type = String(item.type);
 
-      itemEl.innerHTML = `
-        <div class="item-icon">${item.icon}</div>
-        <p class="item-name">${item.name}</p>
-      `;
+    itemEl.innerHTML = `
+      <div class="item-icon">${item.icon}</div>
+      <p class="item-name">${item.name}</p>
 
-      // Desktop
-      itemEl.addEventListener('dragstart', (e) => this.handleDragStart(e));
-      itemEl.addEventListener('dragend', (e) => this.handleDragEnd(e));
+      <div class="risk-buttons">
+        <button class="btn-healthy">Saludable</button>
+        <button class="btn-danger">Riesgo</button>
+      </div>
+    `;
 
-      // Mobile
-      if (navigator.maxTouchPoints > 0) {
-        itemEl.addEventListener('pointerdown', (e) => this.handlePointerDownRisk(e));
-      }
+    // Botón saludable
+    itemEl.querySelector('.btn-healthy')
+      .addEventListener('click', () => this.handleRiskButton(itemEl, 'healthy'));
 
-      container.appendChild(itemEl);
-    });
+    // Botón riesgo
+    itemEl.querySelector('.btn-danger')
+      .addEventListener('click', () => this.handleRiskButton(itemEl, 'danger'));
 
-    // Zonas drop desktop
-    const healthy = document.getElementById('healthy-items');
-    const danger = document.getElementById('danger-items');
-    if (!healthy || !danger) return;
+    container.appendChild(itemEl);
+  });
+}
 
-    healthy.addEventListener('dragover', (e) => this.handleDragOver(e));
-    healthy.addEventListener('drop', (e) => this.handleRiskDrop(e, 'healthy'));
+handleRiskButton(itemEl, selectedZone) {
+  if (itemEl.classList.contains('correct')) return;
 
-    danger.addEventListener('dragover', (e) => this.handleDragOver(e));
-    danger.addEventListener('drop', (e) => this.handleRiskDrop(e, 'danger'));
+  const itemType = itemEl.dataset.type;
+  const itemId = itemEl.dataset.id;
+
+  const healthyZone = document.getElementById('healthy-items');
+  const dangerZone = document.getElementById('danger-items');
+
+  if (itemType === selectedZone) {
+    const itemData = CERVICAL_DATA.riskFactors.find(
+      (r) => String(r.id) === String(itemId)
+    );
+
+    if (itemData) this.addScore(itemData.points);
+
+    this.phaseProgress.risks.completed++;
+
+    const targetZone = selectedZone === 'healthy'
+      ? healthyZone
+      : dangerZone;
+
+    targetZone.appendChild(itemEl);
+
+    itemEl.classList.add('correct');
+    itemEl.querySelector('.risk-buttons').remove();
+
+    if (itemData)
+      this.showFeedback(`✅ ${itemData.explanation}`, 'success');
+
+    if (this.phaseProgress.risks.completed === this.phaseProgress.risks.total) {
+      setTimeout(() => this.completeRiskPhase(), 1000);
+    }
+
+  } else {
+    this.loseLife();
+    this.phaseProgress.risks.perfect = false;
+    itemEl.classList.add('incorrect');
+
+    this.showFeedback('❌ Clasificación incorrecta', 'error');
+
+    setTimeout(() => itemEl.classList.remove('incorrect'), 800);
   }
+
+  this.updateProgress('risks');
+}
+
 
   handleRiskDrop(e, zone) {
     e.preventDefault();
@@ -518,11 +696,147 @@ this.gameTime = this.TOTAL_TIME;
   // FASE 4: MITOS VS REALIDADES
   // ============================================
 
-  initMythsPhase() {
-    console.log('💡 Iniciando fase de mitos vs realidades...');
-    this.createMythCards();
-    this.updateProgress('myths');
+initMythsPhase() {
+  console.log('💡 Iniciando fase de mitos vs realidades (modo quiz)...');
+
+  // dataset barajado
+  this._mythsQueue = [...CERVICAL_DATA.mythsAndFacts].sort(() => Math.random() - 0.5);
+  this._currentMythIndex = 0;
+
+  this.renderMythQuizUI();
+  this.renderNextMythCard();
+  this.updateProgress('myths');
+}
+async animateCardToZone(fromEl, toEl, text) {
+  if (!fromEl || !toEl) return;
+
+  const fromRect = fromEl.getBoundingClientRect();
+  const toRect = toEl.getBoundingClientRect();
+
+  const fly = document.createElement('div');
+  fly.className = 'flying-card';
+  fly.textContent = text;
+
+  fly.style.left = fromRect.left + 'px';
+  fly.style.top = fromRect.top + 'px';
+  fly.style.width = fromRect.width + 'px';
+  fly.style.opacity = '1';
+
+  document.body.appendChild(fly);
+
+  // destino: parte alta del drop-zone
+  const targetLeft = toRect.left + 14;
+  const targetTop  = toRect.top + 70;
+
+  requestAnimationFrame(() => {
+    fly.style.left = targetLeft + 'px';
+    fly.style.top = targetTop + 'px';
+    fly.style.transform = 'scale(0.9)';
+    fly.style.opacity = '0.98';
+  });
+
+  await new Promise(res => setTimeout(res, 480));
+  fly.remove();
+}
+
+appendResultCard(zoneEl, statement, correct) {
+  const card = document.createElement('div');
+  card.className = 'myth-result-card';
+  card.textContent = statement;
+
+  // opcional: marcar si fue correcto/incorrecto visualmente
+  if (!correct) card.style.opacity = '0.75';
+
+  zoneEl.appendChild(card);
+}
+
+renderMythQuizUI() {
+  const container = document.getElementById('myths-phase');
+  if (!container) return;
+
+  // Busca un contenedor donde quieras renderizar la UI.
+  // Si ya tienes uno, usa ese id. Aquí uso myth-statements como “slot”.
+  const slot = document.getElementById('myth-statements');
+  if (!slot) return;
+
+  slot.innerHTML = `
+    <div class="myth-quiz">
+      <div class="myth-quiz-card" id="myth-quiz-card">
+        <div class="myth-quiz-statement" id="myth-quiz-statement"></div>
+      </div>
+
+      <div class="myth-quiz-actions">
+        <button class="myth-btn reality" id="btn-reality" type="button">
+          ✅ Realidad
+        </button>
+        <button class="myth-btn myth" id="btn-myth" type="button">
+          ❌ Mito
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('btn-reality')?.addEventListener('click', () => this.answerMyth(false));
+  document.getElementById('btn-myth')?.addEventListener('click', () => this.answerMyth(true));
+}
+
+renderNextMythCard() {
+  const statementEl = document.getElementById('myth-quiz-statement');
+  const cardEl = document.getElementById('myth-quiz-card');
+  if (!statementEl || !cardEl) return;
+
+  // Si terminó
+  if (!this._mythsQueue || this._currentMythIndex >= this._mythsQueue.length) {
+    setTimeout(() => this.completeMythsPhase(), 600);
+    return;
   }
+
+  const item = this._mythsQueue[this._currentMythIndex];
+  this._currentMythItem = item;
+
+  // reset animaciones/estado
+  cardEl.classList.remove('ok', 'bad');
+  statementEl.textContent = item.statement;
+}
+
+async answerMyth(chosenIsMyth) {
+  const item = this._currentMythItem;
+  if (!item) return;
+
+  const cardEl = document.getElementById('myth-quiz-card');
+  const realityZone = document.getElementById('reality-zone');
+  const mythZone = document.getElementById('myth-zone');
+  if (!cardEl || !realityZone || !mythZone) return;
+
+  const correct = (item.isMyth === chosenIsMyth);
+  const targetZone = chosenIsMyth ? mythZone : realityZone;
+
+  if (correct) {
+    this.addScore(item.points || 0);
+    this.phaseProgress.myths.completed++;
+    this.showFeedback(`✅ ${item.explanation}`, 'success');
+  } else {
+    this.loseLife();
+    this.phaseProgress.myths.perfect = false;
+    this.showFeedback('❌ Clasificación incorrecta', 'error');
+  }
+
+  this.updateProgress('myths');
+
+  // ✅ vuelo + guardar resultado
+  await this.animateCardToZone(cardEl, targetZone, item.statement);
+  this.appendResultCard(targetZone, item.statement, correct);
+
+  // siguiente
+  this._currentMythIndex++;
+  this.renderNextMythCard();
+
+  // terminar
+  if (this._currentMythIndex >= this._mythsQueue.length) {
+    setTimeout(() => this.completeMythsPhase(), 600);
+  }
+}
+
 
   // ✅ SOLO UNA versión (sin duplicados)
   handlePointerDownMyth(e) {
@@ -594,49 +908,57 @@ this.gameTime = this.TOTAL_TIME;
     this.draggedElement = null;
   }
 
-  createMythCards() {
-    const container = document.getElementById('myth-statements');
-    if (!container) return;
+ createMythCards() {
+  const container = document.getElementById('myth-statements');
+  if (!container) return;
 
-    container.innerHTML = '';
+  container.innerHTML = '';
 
-    const shuffled = [...CERVICAL_DATA.mythsAndFacts].sort(() => Math.random() - 0.5);
+  const shuffled = [...CERVICAL_DATA.mythsAndFacts].sort(() => Math.random() - 0.5);
 
-    shuffled.forEach((myth) => {
-      const cardEl = document.createElement('div');
-      cardEl.className = 'myth-card';
-      cardEl.draggable = true;
-      cardEl.dataset.id = String(myth.id);
-      cardEl.dataset.isMyth = String(myth.isMyth);
+  shuffled.forEach((myth) => {
+    const cardEl = document.createElement('div');
+    cardEl.className = 'myth-card';
+    cardEl.draggable = false; // ✅ ya no drag
+    cardEl.dataset.id = String(myth.id);
+    cardEl.dataset.isMyth = String(myth.isMyth); // "true" / "false"
 
-      cardEl.innerHTML = `
-        <p class="myth-statement">${myth.statement}</p>
-        <div class="drag-hint"><i class="fas fa-hand-pointer"></i> Arrastra</div>
-      `;
+    cardEl.innerHTML = `
+      <p class="myth-statement">${myth.statement}</p>
 
-      // Desktop
-      cardEl.addEventListener('dragstart', (e) => this.handleDragStart(e));
-      cardEl.addEventListener('dragend', (e) => this.handleDragEnd(e));
+      <div class="myth-actions">
+        <button class="btn-reality" type="button">Realidad</button>
+        <button class="btn-myth" type="button">Mito</button>
+      </div>
+    `;
 
-      // Mobile
-      if (navigator.maxTouchPoints > 0) {
-        cardEl.addEventListener('pointerdown', (e) => this.handlePointerDownMyth(e));
-      }
+    // ✅ clicks
+    cardEl.querySelector('.btn-reality')?.addEventListener('click', () => this.selectMythAnswer(cardEl, false));
+    cardEl.querySelector('.btn-myth')?.addEventListener('click', () => this.selectMythAnswer(cardEl, true));
 
-      container.appendChild(cardEl);
-    });
+    container.appendChild(cardEl);
+  });
+}
 
-    // Zonas drop (desktop)
-    const realityZone = document.getElementById('reality-zone');
-    const mythZone = document.getElementById('myth-zone');
-    if (!realityZone || !mythZone) return;
 
-    realityZone.addEventListener('dragover', (e) => this.handleDragOver(e));
-    realityZone.addEventListener('drop', (e) => this.handleMythDrop(e, false));
+selectMythAnswer(cardEl, chosenIsMyth) {
+  if (!cardEl || cardEl.classList.contains('correct')) return;
 
-    mythZone.addEventListener('dragover', (e) => this.handleDragOver(e));
-    mythZone.addEventListener('drop', (e) => this.handleMythDrop(e, true));
-  }
+  // “simulamos” el draggedElement para reutilizar tu lógica
+  this.draggedElement = cardEl;
+
+  const zoneEl = document.getElementById(chosenIsMyth ? 'myth-zone' : 'reality-zone');
+  if (!zoneEl) return;
+
+  // reutiliza tu validación y puntaje
+  this.handleMythDrop(
+    { preventDefault() {}, currentTarget: zoneEl, target: zoneEl },
+    chosenIsMyth
+  );
+
+  // limpieza
+  this.draggedElement = null;
+}
 
   handleMythDrop(e, isMyth) {
     e.preventDefault();

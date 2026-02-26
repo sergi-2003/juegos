@@ -562,7 +562,6 @@ body {
 
   /* Mobile-friendly horizontal scroll */
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
   scrollbar-gutter: stable;
   padding-bottom: 0.5rem;
 }
@@ -631,6 +630,12 @@ body {
   opacity: 0.5;
   cursor: grabbing;
 }
+
+.vaccination-card.selected{
+  outline: 3px solid rgba(7,137,48,0.6);
+  box-shadow: 0 10px 25px rgba(7,137,48,0.25);
+}
+
 
 .vaccination-card.correct {
   background: rgba(16, 185, 129, 0.2);
@@ -880,228 +885,351 @@ body {
 }
 
 /* ============================================
-   FASE 3: FACTORES DE RIESGO
+   FASE 3: FACTORES DE RIESGO (BOTONES)
    ============================================ */
 
-.risk-game-area {
+/* Layout general (3 columnas desktop) */
+.risk-game-area{
   display: grid;
   grid-template-columns: 1fr 2fr 1fr;
-  gap: 2rem;
+  gap: 1.5rem;
   align-items: start;
 }
 
+/* Responsive: 1 columna */
+@media (max-width: 1200px){
+  .risk-game-area{ grid-template-columns: 1fr; }
+
+  .healthy-zone{ order: 1; }
+  .danger-zone{ order: 2; }
+  .items-pool{ order: 3; }
+}
+
+/* Pool y zonas */
+.items-pool,
 .healthy-zone,
-.danger-zone {
-  background: rgba(255, 255, 255, 0.03);
-  border: 2px dashed var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: 1.5rem;
-  min-height: 400px;
-  min-width: 0;
+.danger-zone{
+  background: rgba(255,255,255,0.04);
+  border-radius: 18px;
+  padding: 1.25rem;
+  min-width: 0; /* ✅ evita overflow raro */
 }
 
-.healthy-zone { border-color: var(--success-color); }
-.healthy-zone h3 {
-  color: var(--success-color);
-  margin-bottom: 1.5rem;
-  font-size: 1.3rem;
+.items-pool{
+  border: 2px solid rgba(7,137,48,0.18);
+}
+
+.healthy-zone{
+  border: 2px dashed rgba(34,197,94,0.55);
+}
+
+.danger-zone{
+  border: 2px dashed rgba(239,68,68,0.55);
+}
+
+.items-pool h3,
+.healthy-zone h3,
+.danger-zone h3{
   text-align: center;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  font-weight: 800;
 }
 
-.danger-zone { border-color: var(--error-color); }
-.danger-zone h3 {
-  color: var(--error-color);
-  margin-bottom: 1.5rem;
-  font-size: 1.3rem;
-  text-align: center;
-}
+.healthy-zone h3{ color: #16a34a; }
+.danger-zone h3{ color: #dc2626; }
 
-.items-pool {
-  background: rgba(255, 255, 255, 0.03);
-  border: 2px solid rgba(7, 137, 48, 0.18);
-  border-radius: var(--radius-lg);
-  padding: 1.5rem;
-  min-width: 0;
-}
-
-.items-pool h3 {
-  text-align: center;
-  margin-bottom: 1.5rem;
-  font-size: 1.3rem;
-  color: var(--primary-light);
-}
-
-.risk-items-grid {
+/* ===============================
+   GRID DE TARJETAS
+   =============================== */
+.risk-items-grid{
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 14px;
+  align-items: stretch;
 }
 
-.risk-item {
-  background: rgba(255, 255, 255, 0.05);
-  border: 2px solid var(--border-color);
-  border-radius: 16px;
-  padding: 1rem;
-  text-align: center;
-  cursor: grab;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-  min-width: 0;
-}
-
-.risk-item:hover {
-  background: rgba(7, 137, 48, 0.08);
-  border-color: var(--primary-color);
-  transform: scale(1.03);
-  box-shadow: 0 5px 20px rgba(7, 137, 48, 0.2);
-}
-
-.risk-item.dragging { opacity: 0.5; cursor: grabbing; }
-
-.risk-item.correct {
-  cursor: default;
-  animation: correct-drop 0.5s ease;
-}
-
-@keyframes correct-drop {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.12); }
-  100% { transform: scale(1); }
-}
-
-.risk-item.incorrect { animation: shake 0.5s ease; }
-
-.item-icon { font-size: 3rem; margin-bottom: 0.5rem; }
-
-.item-name {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  line-height: 1.3;
-}
-
-.drop-zone {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.75rem;
-  min-height: 300px;
-}
-
-/* ============================================
-   FASE 4: MITOS VS REALIDADES
-   ============================================ */
-
-.myths-container {
-  display: grid;
-  grid-template-columns: 1fr 2fr 1fr;
-  gap: 2rem;
-  align-items: start;
-}
-
-.myths-column {
-  background: rgba(255, 255, 255, 0.03);
-  border: 2px dashed var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: 1.5rem;
-  min-height: 500px;
-  min-width: 0;
-}
-
-.reality-column { border-color: var(--success-color); }
-.reality-column h3 {
-  color: var(--success-color);
-  margin-bottom: 1.5rem;
-  font-size: 1.3rem;
-  text-align: center;
-}
-
-.myth-column { border-color: var(--error-color); }
-.myth-column h3 {
-  color: var(--error-color);
-  margin-bottom: 1.5rem;
-  font-size: 1.3rem;
-  text-align: center;
-}
-
-.statements-pool {
-  background: rgba(255, 255, 255, 0.03);
-  border: 2px solid rgba(7, 137, 48, 0.18);
-  border-radius: var(--radius-lg);
-  padding: 1.5rem;
-  min-width: 0;
-}
-
-.myth-cards{
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-}
-
-/* opcional: en móvil chico 1 columna */
-@media (max-width: 480px){
-  .myth-cards{
-    display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem; /* ajusta a gusto */
+/* Móvil: 2 columnas */
+@media (max-width: 520px){
+  .risk-items-grid{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
   }
 }
 
-@media (max-width: 420px){
-  .myth-cards,
-  .myth-drop-zone{
-    grid-template-columns: 2fr;
-  }
-}
-
-
-.myth-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 2px solid var(--border-color);
-  border-radius: 16px;
-  padding: 1.5rem;
-  cursor: grab;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-  min-width: 0;
-}
-
-
-
-.myth-card:hover {
-  background: rgba(7, 137, 48, 0.08);
-  border-color: var(--primary-color);
-  transform: translateX(5px);
-  box-shadow: 0 5px 20px rgba(7, 137, 48, 0.2);
-}
-
-.myth-card.dragging { opacity: 0.5; cursor: grabbing; }
-
-.myth-card.correct {
-  cursor: default;
-  animation: correct-drop 0.5s ease;
-}
-
-.myth-card.incorrect { animation: shake 0.5s ease; }
-
-.myth-statement {
-  font-size: 1rem;
-  color: var(--text-primary);
-  line-height: 1.5;
-  margin-bottom: 0.75rem;
-  word-break: break-word;
-}
-
-.drag-hint {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
+/* ===============================
+   TARJETA CENTRADA (CORREGIDA)
+   =============================== */
+.risk-item{
+  position: relative; /* ✅ para check / estados */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
+  gap: 10px;
+
+  padding: 14px 12px;
+  min-height: 170px;
+
+  background: #ffffff; /* ✅ se ve mejor que 0.05 */
+  border: 2px solid rgba(7,137,48,0.18);
+  border-radius: 16px;
+
+  box-shadow: 0 8px 18px rgba(0,0,0,0.04);
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
 }
 
+.risk-item:hover{
+  transform: translateY(-2px);
+  border-color: rgba(7,137,48,0.35);
+  box-shadow: 0 14px 28px rgba(0,0,0,0.08);
+}
+
+/* Icono */
+.risk-item .item-icon{
+  font-size: 2.3rem;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+/* Texto (máx 2 líneas) */
+.risk-item .item-name{
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #0a7d2e;
+
+  min-height: 2.4em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0;
+}
+
+/* ===============================
+   BOTONES EN COLUMNA
+   =============================== */
+.risk-buttons{
+  margin-top: auto;            /* ✅ empuja botones al fondo */
+  width: 100%;
+  display: flex;
+  flex-direction: column;      /* ✅ vertical */
+  gap: 8px;
+  align-items: center;
+}
+
+/* Botón base */
+.risk-buttons button{
+  width: 92%;                  /* ✅ consistente y centrado */
+  padding: 9px 0;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  border: none;
+  cursor: pointer;
+  transition: transform .1s ease, filter .15s ease;
+}
+
+.risk-buttons button:active{
+  transform: scale(0.97);
+}
+
+/* Saludable arriba */
+.btn-healthy{
+  background: rgba(34,197,94,0.14);
+  color: #15803d;
+  box-shadow: inset 0 0 0 2px rgba(34,197,94,0.45);
+}
+
+/* Riesgo abajo */
+.btn-danger{
+  background: rgba(239,68,68,0.12);
+  color: #b91c1c;
+  box-shadow: inset 0 0 0 2px rgba(239,68,68,0.45);
+}
+
+/* ===============================
+   ESTADOS
+   =============================== */
+.risk-item.incorrect{
+  border-color: rgba(239,68,68,0.55);
+  background: rgba(239,68,68,0.06);
+  animation: shake .35s ease;
+}
+
+.risk-item.correct{
+  opacity: 0.95;
+  border-color: rgba(34,197,94,0.55);
+  background: rgba(34,197,94,0.06);
+  box-shadow: none;
+}
+
+.risk-item.correct::after{
+  content: "✓";
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 13px;
+  color: white;
+  background: rgba(34,197,94,0.95);
+}
+
+/* Zonas donde se agrupan */
+.drop-zone{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 260px;
+}
+
+/* En móvil que no quede enorme vacío */
+@media (max-width: 520px){
+  .healthy-zone, .danger-zone{ min-height: 220px; }
+}
+
+
+/* ================================
+   MITOS VS REALIDADES (BOTONES)
+   ================================ */
+/* ===== Layout ===== */
+.myths-container{
+  display:grid;
+  grid-template-columns: 1fr minmax(320px, 520px) 1fr;
+  gap: 20px;
+  align-items:start;
+}
+
+@media (max-width: 900px){
+  .myths-container{ grid-template-columns: 1fr; }
+}
+
+/* ===== Laterales ===== */
+.reality-column, .myth-column{
+  border-radius: 20px;
+  padding: 16px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  min-height: 320px;
+}
+
+.reality-column{
+  border: 2px dashed rgba(34,197,94,0.6);
+  background: rgba(34,197,94,0.06);
+}
+.myth-column{
+  border: 2px dashed rgba(239,68,68,0.6);
+  background: rgba(239,68,68,0.06);
+}
+
+.reality-column h3{ text-align:center; color:#15803d; margin: 0; }
+.myth-column h3{ text-align:center; color:#b91c1c; margin: 0; }
+
+/* Contenedor donde caen tarjetas */
 .myth-drop-zone{
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-  min-height: 400px;
-  align-content: start;
+  flex:1;
+  border-radius: 14px;
+  border: 1px solid rgba(0,0,0,0.06);
+  background: rgba(255,255,255,0.5);
+  padding: 12px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  min-height: 220px;
 }
 
+/* ===== Centro ===== */
+.statements-pool{
+  background: rgba(255,255,255,0.03);
+  border: 2px solid rgba(7,137,48,0.18);
+  border-radius: 20px;
+  padding: 16px;
+}
+
+.myth-quiz-slot{ display:block; }
+
+.myth-quiz{
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:14px;
+}
+
+.myth-quiz-card{
+  width:100%;
+  background:#fff;
+  border:2px solid rgba(7,137,48,0.20);
+  border-radius:20px;
+  padding:20px;
+  text-align:center;
+}
+
+.myth-quiz-statement{
+  font-weight:900;
+  color: #0b6a2a;
+  line-height: 1.25;
+}
+
+.myth-quiz-actions{
+  width:100%;
+  display:flex;
+  flex-direction:column; /* ✅ saludable arriba, riesgo abajo estilo hábitos */
+  gap:10px;
+  align-items:center;
+}
+
+.myth-btn{
+  width:min(360px, 100%);
+  padding: 12px 14px;
+  border-radius: 999px;
+  font-weight: 900;
+  border:none;
+  cursor:pointer;
+}
+
+.myth-btn.reality{
+  background: rgba(34,197,94,0.14);
+  color:#15803d;
+  box-shadow: inset 0 0 0 2px rgba(34,197,94,0.50);
+}
+.myth-btn.myth{
+  background: rgba(239,68,68,0.12);
+  color:#b91c1c;
+  box-shadow: inset 0 0 0 2px rgba(239,68,68,0.50);
+}
+
+/* ===== Tarjeta que se guarda en contenedor ===== */
+.myth-result-card{
+  background:#fff;
+  border-radius:12px;
+  padding:10px;
+  font-size:13px;
+  font-weight:800;
+  text-align:left;
+  box-shadow:0 4px 12px rgba(0,0,0,0.06);
+  border: 1px solid rgba(7,137,48,0.12);
+}
+
+/* ===== Animación “vuelo” ===== */
+.flying-card{
+  position: fixed;
+  z-index: 9999;
+  background: #fff;
+  border-radius: 16px;
+  padding: 14px 16px;
+  border: 2px solid rgba(7,137,48,.25);
+  box-shadow: 0 12px 30px rgba(0,0,0,.12);
+  transition: left .45s ease, top .45s ease, transform .45s ease, opacity .45s ease;
+}
 
 /* ============================================
    FASE 5: CALENDARIO
@@ -1468,7 +1596,8 @@ body {
   .stat-value { font-size: 1.05rem; }
   .stat-label { font-size: 0.7rem; }
 
-  .vaccination-cards { grid-template-columns: 1fr; }
+  .vaccination-card{ touch-action: none; }
+
 }
 
 /* <=380px: stat cards 1 por fila */
@@ -1482,25 +1611,34 @@ body {
 
 .vaccination-card,
 .risk-item,
-.myth-card {
+.myth-card{
   -webkit-user-select: none;
   user-select: none;
-  -webkit-touch-callout: none; /* iOS: evita menú contextual */
-  touch-action: none;          /* permite arrastre con Pointer Events */
+  -webkit-touch-callout: none;
+  -webkit-user-drag: none;
+
+  /* CLAVE: deja que el navegador maneje scroll normal */
+  touch-action: pan-y;
 }
 
-.timeline-track {
-  touch-action: pan-x; /* permite scroll horizontal con el dedo */
+.timeline-track{
+  touch-action: pan-x;
+  -webkit-overflow-scrolling: touch;
 }
 
-
+/* SOLO mientras arrastras: ahí sí bloqueas todo */
 .vaccination-card.dragging,
 .risk-item.dragging,
-.myth-card.dragging {
+.myth-card.dragging{
+  touch-action: none;
   opacity: 0.85;
-  transform: scale(1.02);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
   z-index: 9999;
-  position: relative;
+}
+
+body.dragging-active{
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 
 /* Responsive */

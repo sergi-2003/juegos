@@ -701,8 +701,7 @@ completeDietPhase() {
         }
         this.showFeedback('✅ ¡Fase de síntomas completada!', 'success');
         setTimeout(() => {
-            this.showPhase('screening');
-            this.initScreeningPhase();
+            this.completeGame();
         }, 1500);
     }
     
@@ -710,61 +709,7 @@ completeDietPhase() {
     // FASE 6: CALENDARIO DE SCREENING
     // ============================================
     
-    initScreeningPhase() {
-        console.log('📅 Iniciando calendario de screening...');
-        this.currentScenarioIndex = 0;
-        this.showScreeningScenario();
-        document.getElementById('verify-screening').addEventListener('click', () => this.verifyScreening());
-    }
-    
-    showScreeningScenario() {
-        const scenario = COLON_DATA.screeningScenarios[this.currentScenarioIndex];
-        
-        document.getElementById('screening-patient-info').innerHTML = `
-            <p><strong>Edad:</strong> ${scenario.age} años</p>
-            <p><strong>Historial familiar:</strong> ${scenario.familyHistory ? 'Sí' : 'No'}</p>
-            <p><strong>Pólipos previos:</strong> ${scenario.previousPolyps ? 'Sí' : 'No'}</p>
-            <p><strong>Factores de riesgo:</strong> ${scenario.riskFactors.join(', ') || 'Ninguno'}</p>
-        `;
-    }
-    
-    verifyScreening() {
-        const scenario = COLON_DATA.screeningScenarios[this.currentScenarioIndex];
-        const userAnswers = {
-            firstScreening: document.getElementById('first-screening').value,
-            frequency: document.getElementById('screening-frequency').value,
-            additionalTests: document.getElementById('additional-tests').value,
-            specialMonitoring: document.getElementById('special-monitoring').value
-        };
-        
-        const correct = scenario.correctSchedule;
-        let correctCount = 0;
-        
-        if (userAnswers.firstScreening === correct.firstScreening) correctCount++;
-        if (userAnswers.frequency === correct.frequency) correctCount++;
-        if (userAnswers.additionalTests === correct.additionalTests) correctCount++;
-        if (userAnswers.specialMonitoring === correct.specialMonitoring) correctCount++;
-        
-        if (correctCount === 4) {
-            this.addScore(scenario.points);
-            this.phaseProgress.screening.completed = true;
-            this.showFeedback('✅ ¡Plan de screening perfecto!', 'success');
-            setTimeout(() => this.completeScreeningPhase(), 1500);
-        } else {
-            this.loseLife();
-            this.phaseProgress.screening.perfect = false;
-            this.showFeedback(`❌ ${correctCount}/4 correctas. Revisa el plan.`, 'error');
-        }
-    }
-    
-    completeScreeningPhase() {
-        if (this.phaseProgress.screening.perfect) {
-            this.unlockAchievement('screening_planner');
-            this.addScore(500);
-        }
-        this.completeGame();
-    }
-    
+   
     // ============================================
     // SISTEMA DE JUEGO
     // ============================================

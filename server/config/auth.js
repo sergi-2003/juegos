@@ -10,14 +10,16 @@ const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 const JWT_REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || '30d';
 
 // Generar token JWT (access o refresh)
-const generateToken = (userId, username, type = 'access') => {
+// ✅ AHORA INCLUYE role Y FIRMA CORRECTA
+const generateToken = (userId, username, role, type = 'access') => {
   const expiresIn = type === 'refresh' ? JWT_REFRESH_EXPIRES_IN : JWT_EXPIRES_IN;
 
   return jwt.sign(
     {
       userId,
       username,
-      type,               // 👈 IMPORTANTE
+      role,
+      type,
       timestamp: Date.now()
     },
     JWT_SECRET,
@@ -25,7 +27,6 @@ const generateToken = (userId, username, type = 'access') => {
   );
 };
 
-// Verificar token JWT
 const verifyToken = (token) => {
   try {
     return jwt.verify(token, JWT_SECRET);
@@ -57,10 +58,12 @@ const authenticateToken = (req, res, next) => {
       });
     }
 
+    // ✅ AQUÍ ESTABA TU BUG: user.role NO EXISTE
     req.user = {
       id: decoded.userId,
       userId: decoded.userId,
       username: decoded.username,
+      role: decoded.role || 'user',
       timestamp: decoded.timestamp
     };
 
@@ -73,7 +76,6 @@ const authenticateToken = (req, res, next) => {
   }
 };
 
-// Middleware para autenticación opcional
 const optionalAuth = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -85,6 +87,7 @@ const optionalAuth = (req, res, next) => {
         id: decoded.userId,
         userId: decoded.userId,
         username: decoded.username,
+        role: decoded.role || 'user',
         timestamp: decoded.timestamp
       };
     } catch (error) {

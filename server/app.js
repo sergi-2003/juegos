@@ -1,7 +1,6 @@
 // ============================================
 // SERVIDOR PRINCIPAL - VITAGUARD HEROES
 // ============================================
-
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -13,13 +12,18 @@ require('dotenv').config();
 // Importar configuraciones y modelos
 const { checkConnection, initializeTables } = require('./config/database');
 
+
 // Importar rutas
 const authRoutes = require('./routes/auth');
 const scoreRoutes = require('./routes/scores');
+const adminRoutes = require('./routes/admin');
+
 
 const app = express();
 app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3000;
+
+app.use('/api/admin', adminRoutes);
 
 // ============================================
 // MIDDLEWARES
@@ -148,6 +152,9 @@ app.get('/api/game/info', (req, res) => {
         ]
     });
 });
+
+const metricsRoutes = require('./routes/metrics');
+app.use('/api/metrics', metricsRoutes);
 
 // Estadísticas globales del juego
 app.get('/api/game/stats', (req, res) => {

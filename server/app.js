@@ -23,7 +23,7 @@ const app = express();
 app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3000;
 
-app.use('/api/admin', adminRoutes);
+
 
 // ============================================
 // MIDDLEWARES
@@ -35,10 +35,17 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"],
       scriptSrcAttr: ["'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "http://localhost:3000", "http://127.0.0.1:3000"],
+      connectSrc: [
+        "'self'",
+        "https://juegos-26ud.onrender.com",
+        "https://saludweb.online",
+        "https://www.saludweb.online",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000"
+      ],
     },
   },
   crossOriginEmbedderPolicy: false
@@ -73,6 +80,8 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+app.use('/api/admin', adminRoutes);
 
 // Parser para JSON y URL encoded
 app.use(bodyParser.json({ limit: '10mb' }));
